@@ -6,10 +6,23 @@
 # version: 0.1
 # script:  ruby
 
+class Girl
+	BodySpriteId=304
+	def initialize(fid,tic)
+		@face_id = fid
+		@x=@y=0
+		@tic=tic
+	end
+
+	def show(x,y,tic)
+	end
+end
+
 $t=0
 $x=96
 $y=24
 $flip=0
+$grass=Girl.new(256,0)
 BodySpriteId=304
 
 def TIC
