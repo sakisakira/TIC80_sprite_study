@@ -9,12 +9,27 @@
 class Girl
 	BodySpriteId=304
 	def initialize(fid,tic)
-		@face_id = fid
-		@x=@y=0
-		@tic=tic
+		@face_id=fid
+		@init_tic=tic
+		@last_x,@last_y=0,0
+		@flip=false
 	end
 
 	def show(x,y,tic)
+		d_t=tic-@init_tic
+		d_x=x-@last_x
+		body_i=d_t/8%4
+		body_i=1 if d_x==0 or body_i==3
+		body_id=BodySpriteId+body_i*2
+		if d_x<0 then f=0
+		elsif d_x>0 then f=1
+		else f=@flip
+		end
+		@flip=f
+		vbank(1)
+		spr(body_id,x,y+16,0,1,f,0,2,2)
+		spr(@face_id,x,y,0,1,f,0,2,3)
+		@last_x,@last_y=x,y
 	end
 end
 
@@ -23,7 +38,6 @@ $x=96
 $y=24
 $flip=0
 $grass=Girl.new(256,0)
-BodySpriteId=304
 
 def TIC
 	dir=0
@@ -46,27 +60,11 @@ def TIC
 	cls(15)
 	vbank(1)
 	cls(0)
-	spr_walk(256,$x,$y,dir,$t)
+	$grass.show($x,$y,$t)
 	print("Hello, Grass!",_x,$y+20,14)
 	$t+=1
 end
 
-def spr_walk(fid,x,y,dir,t)
-	i=t/8%4
-	i=1 if dir==0 or i==3
-	bid=BodySpriteId+i*2
-	if dir<0 then
-		f=0
-	elsif dir>0 then
-		f=1
-	else
-		f=$flip
-	end
-	$flip=f
-	vbank(1)
-	spr(bid,x,y+16,0,1,f,0,2,2)
-	spr(fid,x,y,0,1,f,0,2,3)
-end
 
 # <TILES>
 # 001:eccccccccc888888caaaaaaaca888888cacccccccacc0ccccacc0ccccacc0ccc
