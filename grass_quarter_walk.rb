@@ -46,7 +46,7 @@ class Girl
 		flip=if @direction[0]>0 or (@direction[0]==0 and d_t==2)
 			then 1 else 0 end
 		if d_x.zero? and d_y.zero? then
-			sid=sprite_id(@direction[0],@direction[1])
+			sid=sprite_id(@direction[0],@direction[1])+2
 		elsif d_x.zero? then
 			sid=sprite_id(0,d_y)+d_t%2*2
 		else
