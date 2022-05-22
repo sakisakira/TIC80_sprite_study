@@ -6,19 +6,8 @@
 # version: 0.1
 # script:  ruby
 
-module Dir
-	SW=[-1,-1]
-	S_=[ 0,-1]
-	SE=[ 1,-1]
-	W_=[-1, 0]
-	E_=[ 1, 0]
-	NW=[-1, 1]
-	N_=[ 0, 1]
-	NE=[ 1, 1]
-	None=[0,0]
-end
-
 class Girl
+	attr_reader(:last_x,:last_y,:direction)
 	W_Base=256-256
 	WSBase=262-256
 	WNBase=320-256
@@ -29,7 +18,7 @@ class Girl
 		@base_id=base_id
 		@start_tic=0
 		@last_x,@last_y=0,0
-		@direction=Dir::None
+		@direction=[0,1]
 	end
 
 	def sprite_id(d_x,d_y)
@@ -69,12 +58,44 @@ class Girl
 	end
 end
 
-$t=0
+$tic=0
 $x=96
 $y=24
-$flip=0
 $grass=Girl.new(256)
-$scarlet=Girl.new(256)
+Width=240
+Height=130
+
+class GirlStatus
+	attr_reader(:girl,:x,:y)
+	def initialize(base_id)
+		@girl=Girl.new(base_id)
+		@x=rand(Width)
+		@y=rand(Height)
+		@dx=rand(3)-1
+		@dy=rand(3)-1
+		@duration=rand(60)
+		@tic=0
+	end
+
+	def update
+		@x+=@dx
+		@y+=@dy
+		@x=[[0,@x].max,Width].min
+		@y=[[0,@y].max,Height].min
+		if @tic>=@duration then
+			@dx=rand(3)-1
+			@dy=rand(3)-1
+			@duration=rand(60)
+			@tic=0
+		end
+		@tic+=1
+	end
+end
+
+$girls=[]
+30.times do |i|
+	$girls << GirlStatus.new(256)
+end
 
 def TIC
 	dir=0
@@ -91,17 +112,17 @@ def TIC
 		$x+=1;dir=1
 	end
 
-	_y=$y+40
-	_x=$x+40
 	vbank(0)
 	cls(15)
 	vbank(1)
 	cls(0)
-	$grass.show($x,$y,$t)
-	print("Hello, Grass!",_x,$y+20,8)
-	$scarlet.show($x,_y,$t)
-	print("Hello, Grass!",_x,_y+20,8)
-	$t+=1
+	$grass.show($x,$y,$tic)
+	print("I'm Grass!",$x,$y+32,8)
+	$girls.each do |gs|
+		gs.update
+		gs.girl.show(gs.x, gs.y,$tic)
+	end
+	$tic+=1
 end
 
 
