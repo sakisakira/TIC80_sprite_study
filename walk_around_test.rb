@@ -96,6 +96,7 @@ class GirlStatus
 end
 
 class FollowerStatus
+	attr_reader(:x,:y)
 	module Mode
 		Happiness = 0
 		Teasing = 1
@@ -113,31 +114,37 @@ class FollowerStatus
       @girl= Girl.new(base_id)
 	  @x=rand(Width)
 	  @y=rand(Height)
+	  @tic=0
       @avg_dist=20
       @max_speed=2
     end
 
-    def follow(girl_status)
-      @followee=girl_status
+    def follow(girl)
+      @followee=girl
     end
     
     def update
-      dx=@followee.x-@x
-      dy=@followee.y-@y
+      dx=@followee.last_x-@x
+      dy=@followee.last_y-@y
       dist=[(dx*dx+dy*dy)**0.5,0.5].max
       speed=((dist-@avg_dist)*1.0/@avg_dist)*@max_speed
       speed=[[-@max_speed,speed].max,@max_speed].min
       dx_=(dx/dist)*speed
       dy_=(dy/dist)*speed
-      @x+=dx
-      @y+=dy
+      @x+=dx_
+      @y+=dy_
 	  @x=[[0,@x].max,Width].min
 	  @y=[[0,@y].max,Height].min
+	  @tic+=1
     end
+
+	def show
+		@girl.show(@x,@y,@tic)
+	end
 end
 
 $grass=Girl.new(GrassID)
-$condor=FollowerStatus(CondorID)
+$condor=FollowerStatus.new(CondorID)
 $condor.follow($grass)
 
 def TIC
@@ -159,11 +166,13 @@ def TIC
 	cls(15)
 	vbank(1)
 	cls(0)
-	$grass.show($x,$y,$tic)
-	print("I'm Grass!",$x,$y+32,8)
-	$girls.each do |gs|
-		gs.update
-		gs.girl.show(gs.x, gs.y,$tic)
+	$condor.update
+	if $y<$condor.y then
+		$grass.show($x,$y,$tic)
+		$condor.show
+	else
+		$condor.show
+		$grass.show($x,$y,$tic)
 	end
 	$tic+=1
 end
