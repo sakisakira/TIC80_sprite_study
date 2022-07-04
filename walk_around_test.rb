@@ -1,3 +1,4 @@
+# -*- tab-width : 4 -*-
 # title:   grass quarter walk
 # author:  SAkira <sakisakira@gmail.com>
 # desc:    short description
@@ -94,7 +95,7 @@ class GirlStatus
 	end
 end
 
-class Emotion
+class FollowerStatus
 	module Mode
 		Happiness = 0
 		Teasing = 1
@@ -107,16 +108,37 @@ class Emotion
 		Mode::Anger => 'Anger',
 		Mode::Sadness => 'Sadness'
 	}
+    
+    def initialize(base_id)
+      @girl= Girl.new(base_id)
+	  @x=rand(Width)
+	  @y=rand(Height)
+      @avg_dist=20
+      @max_speed=2
+    end
+
+    def follow(girl_status)
+      @followee=girl_status
+    end
+    
+    def update
+      dx=@followee.x-@x
+      dy=@followee.y-@y
+      dist=[(dx*dx+dy*dy)**0.5,0.5].max
+      speed=((dist-@avg_dist)*1.0/@avg_dist)*@max_speed
+      speed=[[-@max_speed,speed].max,@max_speed].min
+      dx_=(dx/dist)*speed
+      dy_=(dy/dist)*speed
+      @x+=dx
+      @y+=dy
+	  @x=[[0,@x].max,Width].min
+	  @y=[[0,@y].max,Height].min
+    end
 end
 
-$girls=[]
-10.times do |i|
-	$girls << GirlStatus.new(GrassID)
-end
-10.times do |i|
-	$girls << GirlStatus.new(CondorID)
-end
 $grass=Girl.new(GrassID)
+$condor=FollowerStatus(CondorID)
+$condor.follow($grass)
 
 def TIC
 	dir=0
