@@ -37,11 +37,12 @@ class Girl
 		return nil
 	end
 
-	def show(x,y,tic)
+	def show(x,y,tic,d_xy=nil)
 		d_x=(x-@last_x)<=>0
 		d_y=(y-@last_y)<=>0
 		if d_x==0 and d_y==0 then
 			@start_tic=tic
+			@direction=d_xy if d_xy
 		else
 			@direction=[d_x,d_y]
 		end
@@ -60,7 +61,7 @@ class Girl
 		spr(sid,x,y,0,1,flip,0,2,4)
 		@last_x,@last_y=x,y
 	end
-end
+end # Girl
 
 $tic=0
 $x=96
@@ -93,7 +94,7 @@ class GirlStatus
 		end
 		@tic+=1
 	end
-end
+end # GirlStatus
 
 class FollowerStatus
 	attr_reader(:x,:y)
@@ -109,39 +110,39 @@ class FollowerStatus
 		Mode::Anger => 'Anger',
 		Mode::Sadness => 'Sadness'
 	}
-    
-    def initialize(base_id)
-      @girl= Girl.new(base_id)
-	  @x=rand(Width)
-	  @y=rand(Height)
-	  @tic=0
-      @avg_dist=20
-      @max_speed=2
-    end
+	
+	def initialize(base_id)
+		@girl= Girl.new(base_id)
+		@x=rand(Width)
+		@y=rand(Height)
+		@tic=0
+		@avg_dist=20
+		@max_speed=2
+	end
 
-    def follow(girl)
-      @followee=girl
-    end
-    
-    def update
-      dx=@followee.last_x-@x
-      dy=@followee.last_y-@y
-      dist=[(dx*dx+dy*dy)**0.5,0.5].max
-      speed=((dist-@avg_dist)*1.0/@avg_dist)*@max_speed
-      speed=[[-@max_speed,speed].max,@max_speed].min
-      dx_=(dx/dist)*speed
-      dy_=(dy/dist)*speed
-      @x+=dx_
-      @y+=dy_
-	  @x=[[0,@x].max,Width].min
-	  @y=[[0,@y].max,Height].min
-	  @tic+=1
-    end
+	def follow(girl)
+	  @followee=girl
+	end
+	
+	def update
+		dx=@followee.last_x-@x
+		dy=@followee.last_y-@y
+		dist=[(dx*dx+dy*dy)**0.5,0.5].max
+		speed=((dist-@avg_dist)*1.0/@avg_dist)*@max_speed
+		speed=[[-@max_speed,speed].max,@max_speed].min
+		dx_=(dx/dist)*speed
+		dy_=(dy/dist)*speed
+		@x+=dx_
+		@y+=dy_
+		@x=[[0,@x].max,Width].min
+		@y=[[0,@y].max,Height].min
+		@tic+=1
+	end
 
 	def show
-		@girl.show(@x,@y,@tic)
+		@girl.show(@x,@y,@tic,[0,1])
 	end
-end
+end # FollowerStatus
 
 $grass=Girl.new(GrassID)
 $condor=FollowerStatus.new(CondorID)
