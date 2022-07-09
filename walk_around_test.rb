@@ -130,7 +130,7 @@ class FollowerStatus
 		@x=[[0,@x].max,Width].min
 		@y=[[0,@y].max,Height].min
 		@tic+=1
-    end
+	end
 
 	def update_neutral
 		update_pos(MaxSpeed,AvgDist)
