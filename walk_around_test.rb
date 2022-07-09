@@ -48,7 +48,7 @@ class Girl
 			@direction=[d_x,d_y]
 		end
 		d_t=(tic-@start_tic)/8%4
-		d_t=1 if @start_tic==tic or d_t==3
+		d_t=1 if tic==@start_tic or d_t==3
 		flip=if @direction[0]>0 or (@direction[0]==0 and d_t==2)
 			then 1 else 0 end
 		if d_x.zero? and d_y.zero? then
@@ -84,8 +84,8 @@ class FollowerStatus
 		Mode::Anger => 'Anger',
 		Mode::Sadness => 'Sadness'
 	}
-    ModeNumber=ModeNames.size
-	
+	ModeNumber=ModeNames.size
+
 	def initialize(base_id)
 		@girl= Girl.new(base_id)
 		@x=rand(Width)
@@ -117,7 +117,7 @@ class FollowerStatus
 		end
 	end
 
-    def update_pos(max_speed,avg_dist)
+	def update_pos(max_speed,avg_dist)
 		dx=@followee.last_x-@x
 		dy=@followee.last_y-@y
 		dist=[(dx*dx+dy*dy)**0.5,0.5].max
@@ -131,7 +131,7 @@ class FollowerStatus
 		@y=[[0,@y].max,Height].min
 		@tic+=1
     end
-    
+
 	def update_neutral
 	  update_pos(@max_speed,@avg_dist)
 	end
