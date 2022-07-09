@@ -37,17 +37,20 @@ class Girl
 		return nil
 	end
 
-	def show(x,y,tic,d_xy=nil)
+	def show(x,y,tic)
 		d_x=(x-@last_x)<=>0
 		d_y=(y-@last_y)<=>0
 		if d_x==0 and d_y==0 then
 			@start_tic=tic
-			@direction=d_xy if d_xy
 		else
 			@direction=[d_x,d_y]
 		end
 		d_t=(tic-@start_tic)/8%4
 		d_t=1 if @start_tic==tic or d_t==3
+        if x.to_i==@last_x.to_i and
+          y.to_i==@last_y.to_i then
+          d_t=1
+        end
 		flip=if @direction[0]>0 or (@direction[0]==0 and d_t==2)
 			then 1 else 0 end
 		if d_x.zero? and d_y.zero? then
@@ -58,7 +61,7 @@ class Girl
 			sid=sprite_id(d_x,d_y)+d_t*2
 		end
 		vbank(1)
-		spr(sid,x,y,0,1,flip,0,2,4)
+		spr(sid,x.to_i,y.to_i,0,1,flip,0,2,4)
 		@last_x,@last_y=x,y
 	end
 end # Girl
@@ -140,7 +143,7 @@ class FollowerStatus
 	end
 
 	def show
-		@girl.show(@x,@y,@tic,[0,1])
+		@girl.show(@x,@y,@tic)
 	end
 end # FollowerStatus
 
