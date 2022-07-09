@@ -40,17 +40,15 @@ class Girl
 	def show(x,y,tic)
 		d_x=(x-@last_x)<=>0
 		d_y=(y-@last_y)<=>0
-		if d_x==0 and d_y==0 then
-			@start_tic=tic
+        if x.to_i==@last_x.to_i and
+          y.to_i==@last_y.to_i then
+            @start_tic=tic
+            d_t=1
 		else
 			@direction=[d_x,d_y]
 		end
 		d_t=(tic-@start_tic)/8%4
 		d_t=1 if @start_tic==tic or d_t==3
-        if x.to_i==@last_x.to_i and
-          y.to_i==@last_y.to_i then
-          d_t=1
-        end
 		flip=if @direction[0]>0 or (@direction[0]==0 and d_t==2)
 			then 1 else 0 end
 		if d_x.zero? and d_y.zero? then
@@ -72,42 +70,17 @@ $y=24
 Width=240-16
 Height=130-32
 
-class GirlStatus
-	attr_reader(:girl,:x,:y)
-	def initialize(base_id)
-		@girl=Girl.new(base_id)
-		@x=rand(Width)
-		@y=rand(Height)
-		@dx=rand(3)-1
-		@dy=rand(3)-1
-		@duration=rand(60)
-		@tic=0
-	end
-
-	def update
-		@x+=@dx*0.5
-		@y+=@dy*0.5
-		@x=[[0,@x].max,Width].min
-		@y=[[0,@y].max,Height].min
-		if @tic>=@duration then
-			@dx=rand(3)-1
-			@dy=rand(3)-1
-			@duration=rand(60)
-			@tic=0
-		end
-		@tic+=1
-	end
-end # GirlStatus
-
 class FollowerStatus
 	attr_reader(:x,:y)
 	module Mode
-		Happiness = 0
-		Teasing = 1
-		Anger = 2
-		Sadness = 3
+        Neutral = 0
+		Happiness = 1
+		Teasing = 2
+		Anger = 3
+		Sadness = 4
 	end
 	ModeNames = {
+        Mode::Neutral => 'Neutral',
 		Mode::Happiness => 'Happiness',
 		Mode::Teasing => 'Teasing',
 		Mode::Anger => 'Anger',
@@ -119,15 +92,27 @@ class FollowerStatus
 		@x=rand(Width)
 		@y=rand(Height)
 		@tic=0
+        @mode=Mode::Neutral
 		@avg_dist=20
 		@max_speed=2
 	end
 
 	def follow(girl)
-	  @followee=girl
+  	    @followee=girl
 	end
-	
-	def update
+
+    def update
+      case @mode
+      when Mode::Neutral
+        update_neutral
+      when Mode::Hapiness
+        update_hapiness
+      else
+        print("illegal mode", @mode)
+      end
+    end
+    
+	def update_neutral
 		dx=@followee.last_x-@x
 		dy=@followee.last_y-@y
 		dist=[(dx*dx+dy*dy)**0.5,0.5].max
@@ -142,7 +127,11 @@ class FollowerStatus
 		@tic+=1
 	end
 
+    def update_happiness
+    end
+    
 	def show
+        print("Mode:"+ModeNames[@mode], @x, @y-12)
 		@girl.show(@x,@y,@tic)
 	end
 end # FollowerStatus
