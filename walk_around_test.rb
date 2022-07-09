@@ -40,10 +40,10 @@ class Girl
 	def show(x,y,tic)
 		d_x=(x-@last_x)<=>0
 		d_y=(y-@last_y)<=>0
-        if x.to_i==@last_x.to_i and
-          y.to_i==@last_y.to_i then
-            @start_tic=tic
-            d_t=1
+		if x.to_i==@last_x.to_i and
+		  y.to_i==@last_y.to_i then
+			@start_tic=tic
+			d_t=1
 		else
 			@direction=[d_x,d_y]
 		end
@@ -75,14 +75,12 @@ class FollowerStatus
 	module Mode
         Neutral = 0
 		Happiness = 1
-		Teasing = 2
-		Anger = 3
-		Sadness = 4
+		Anger = 2
+		Sadness = 3
 	end
 	ModeNames = {
         Mode::Neutral => 'Neutral',
 		Mode::Happiness => 'Happiness',
-		Mode::Teasing => 'Teasing',
 		Mode::Anger => 'Anger',
 		Mode::Sadness => 'Sadness'
 	}
@@ -92,8 +90,8 @@ class FollowerStatus
 		@girl= Girl.new(base_id)
 		@x=rand(Width)
 		@y=rand(Height)
-        @x_t=0
-        @y_t=0
+		@x_t=0
+		@y_t=0
 		@tic=0
         @mode=Mode::Neutral
 		@avg_dist=20
@@ -101,26 +99,30 @@ class FollowerStatus
 	end
 
 	def follow(girl)
-  	    @followee=girl
+		@followee=girl
 	end
 
-    def update
-      case @mode
-      when Mode::Neutral
-        update_neutral
-      when Mode::Happiness
-        update_happiness
-      else
-        print("illegal mode", @mode)
-      end
-    end
-    
-	def update_neutral
+	def update
+		case @mode
+		when Mode::Neutral
+			update_neutral
+		when Mode::Happiness
+			update_happiness
+		when Mode::Anger
+			update_anger
+		when Mode::Sadness
+			update_sadness
+		else
+			print("illegal mode",@mode)
+		end
+	end
+
+    def update_pos(max_speed,avg_dist)
 		dx=@followee.last_x-@x
 		dy=@followee.last_y-@y
 		dist=[(dx*dx+dy*dy)**0.5,0.5].max
-		speed=((dist-@avg_dist)*1.0/@avg_dist)*@max_speed
-		speed=[[-@max_speed,speed].max,@max_speed].min
+		speed=((dist-avg_dist)*1.0/avg_dist)*max_speed
+		speed=[[-max_speed,speed].max,max_speed].min
 		dx_=(dx/dist)*speed
 		dy_=(dy/dist)*speed
 		@x+=dx_
@@ -128,30 +130,42 @@ class FollowerStatus
 		@x=[[0,@x].max,Width].min
 		@y=[[0,@y].max,Height].min
 		@tic+=1
-	end
-
-    def update_happiness
-      update_neutral
-      case @tic%60
-      when 0
-        @y_t=-10
-      when 2
-        @y_t=0
-      end
     end
     
+	def update_neutral
+	  update_pos(@max_speed,@avg_dist)
+	end
+
+	def update_happiness
+	  update_neutral
+	  case @tic%60
+	  when 0
+		@y_t=-10
+	  when 2
+		@y_t=0
+	  end
+	end
+
+	def update_anger
+	  #################### working
+	end
+
+	def update_sadness
+	  #################### working
+	end
+
 	def show
-        print("Mode:"+ModeNames[@mode], @x, @y-12)
+		print("Mode:"+ModeNames[@mode], @x, @y-12)
 		@girl.show(@x+@x_t,@y+@y_t,@tic)
 	end
 
-    def change_mode(mode=nil)
-      if mode then
-        @mode=mode
-      else
-        @mode=(@mode+1)%ModeNumber
-      end
-    end
+	def change_mode(mode=nil)
+	  if mode then
+		@mode=mode
+	  else
+		@mode=(@mode+1)%ModeNumber
+	  end
+	end
 end # FollowerStatus
 
 $grass=Girl.new(GrassID)
@@ -172,9 +186,9 @@ def TIC
 	if btn(3) then # right
 		$x+=1;dir=1
 	end
-    if btnp(4) then # A
-        $condor.change_mode
-    end
+	if btnp(4) then # A
+		$condor.change_mode
+	end
 
 	vbank(0)
 	cls(15)
