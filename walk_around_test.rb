@@ -73,13 +73,13 @@ Height=130-32
 class FollowerStatus
 	attr_reader(:x,:y)
 	module Mode
-        Neutral = 0
+		Neutral = 0
 		Happiness = 1
 		Anger = 2
 		Sadness = 3
 	end
 	ModeNames = {
-        Mode::Neutral => 'Neutral',
+		Mode::Neutral => 'Neutral',
 		Mode::Happiness => 'Happiness',
 		Mode::Anger => 'Anger',
 		Mode::Sadness => 'Sadness'
@@ -93,9 +93,9 @@ class FollowerStatus
 		@x_t=0
 		@y_t=0
 		@tic=0
-        @mode=Mode::Neutral
-		@avg_dist=20
-		@max_speed=2
+		@mode=Mode::Neutral
+		AvgDist=20
+		MaxSpeed=2
 	end
 
 	def follow(girl)
@@ -133,38 +133,38 @@ class FollowerStatus
     end
 
 	def update_neutral
-	  update_pos(@max_speed,@avg_dist)
+		update_pos(MaxSpeed,AvgDist)
 	end
 
 	def update_happiness
-	  update_neutral
-	  case @tic%60
-	  when 0
-		@y_t=-10
-	  when 2
-		@y_t=0
-	  end
+		update_pos(MaxSpeed,AvgDist)
+		case @tic%60
+		when 0
+			@y_t=-10
+		when 2
+			@y_t=0
+		end
 	end
 
 	def update_anger
-	  #################### working
+		update_pos(MaxSpeed*1.5,AvgDist*2)
 	end
 
 	def update_sadness
-	  #################### working
+		update_pos(MaxSpeed*0.6,AvgDist*1.5)
 	end
 
 	def show
-		print("Mode:"+ModeNames[@mode], @x, @y-12)
+		print("Mode: "+ModeNames[@mode], @x, @y-12)
 		@girl.show(@x+@x_t,@y+@y_t,@tic)
 	end
 
 	def change_mode(mode=nil)
-	  if mode then
-		@mode=mode
-	  else
-		@mode=(@mode+1)%ModeNumber
-	  end
+		if mode then
+			@mode=mode
+		else
+			@mode=(@mode+1)%ModeNumber
+		end
 	end
 end # FollowerStatus
 
