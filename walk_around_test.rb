@@ -86,11 +86,14 @@ class FollowerStatus
 		Mode::Anger => 'Anger',
 		Mode::Sadness => 'Sadness'
 	}
+    ModeNumber=ModeNames.size
 	
 	def initialize(base_id)
 		@girl= Girl.new(base_id)
 		@x=rand(Width)
 		@y=rand(Height)
+        @x_t=0
+        @y_t=0
 		@tic=0
         @mode=Mode::Neutral
 		@avg_dist=20
@@ -105,8 +108,8 @@ class FollowerStatus
       case @mode
       when Mode::Neutral
         update_neutral
-      when Mode::Hapiness
-        update_hapiness
+      when Mode::Happiness
+        update_happiness
       else
         print("illegal mode", @mode)
       end
@@ -128,12 +131,27 @@ class FollowerStatus
 	end
 
     def update_happiness
+      update_neutral
+      case @tic%60
+      when 0
+        @y_t=-10
+      when 2
+        @y_t=0
+      end
     end
     
 	def show
         print("Mode:"+ModeNames[@mode], @x, @y-12)
-		@girl.show(@x,@y,@tic)
+		@girl.show(@x+@x_t,@y+@y_t,@tic)
 	end
+
+    def change_mode(mode=nil)
+      if mode then
+        @mode=mode
+      else
+        @mode=(@mode+1)%ModeNumber
+      end
+    end
 end # FollowerStatus
 
 $grass=Girl.new(GrassID)
@@ -154,6 +172,9 @@ def TIC
 	if btn(3) then # right
 		$x+=1;dir=1
 	end
+    if btnp(4) then # A
+        $condor.change_mode
+    end
 
 	vbank(0)
 	cls(15)
