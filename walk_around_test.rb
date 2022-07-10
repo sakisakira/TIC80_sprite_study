@@ -1,4 +1,4 @@
-# -*- tab-width : 4 -*-
+# -*- tab-width : 4; indent-tabs-mode: t  -*-
 # title:   grass quarter walk
 # author:  SAkira <sakisakira@gmail.com>
 # desc:    short description
@@ -37,26 +37,26 @@ class Girl
 		return nil
 	end
 
-	def show(x,y,tic)
-		d_x=(x-@last_x)<=>0
-		d_y=(y-@last_y)<=>0
-		if x.to_i==@last_x.to_i and
-		  y.to_i==@last_y.to_i then
+	def show(x,y,tic,dist=nil)
+		d_x=x-@last_x
+		d_y=y-@last_y
+		if d_x.zero? and d_y.zero? then
 			@start_tic=tic
 			d_t=1
 		else
-			@direction=[d_x,d_y]
+			@direction=[d_x<=>0,d_y<=>0]
 		end
 		d_t=(tic-@start_tic)/8%4
-		d_t=1 if tic==@start_tic or d_t==3
+		d_t=1 if d_t==3
+		d_t=1 if dist and dist>1
 		flip=if @direction[0]>0 or (@direction[0]==0 and d_t==2)
 			then 1 else 0 end
 		if d_x.zero? and d_y.zero? then
 			sid=sprite_id(@direction[0],@direction[1])+2
 		elsif d_x.zero? then
-			sid=sprite_id(0,d_y)+d_t%2*2
+			sid=sprite_id(0,d_y<=>0)+d_t%2*2
 		else
-			sid=sprite_id(d_x,d_y)+d_t*2
+			sid=sprite_id(d_x<=>0,d_y<=>0)+d_t*2
 		end
 		vbank(1)
 		spr(sid,x.to_i,y.to_i,0,1,flip,0,2,4)
@@ -120,11 +120,11 @@ class FollowerStatus
 	def update_pos(max_speed,avg_dist)
 		dx=@followee.last_x-@x
 		dy=@followee.last_y-@y
-		dist=[(dx*dx+dy*dy)**0.5,0.5].max
-		speed=((dist-avg_dist)*1.0/avg_dist)*max_speed
+		@dist=[(dx*dx+dy*dy)**0.5,0.5].max
+		speed=((@dist-avg_dist)*1.0/avg_dist)*max_speed
 		speed=[[-max_speed,speed].max,max_speed].min
-		dx_=(dx/dist)*speed
-		dy_=(dy/dist)*speed
+		dx_=(dx/@dist)*speed
+		dy_=(dy/@dist)*speed
 		@x+=dx_
 		@y+=dy_
 		@x=[[0,@x].max,Width].min
@@ -155,8 +155,8 @@ class FollowerStatus
 	end
 
 	def show
-		print("Mode: "+ModeNames[@mode], @x, @y-12)
-		@girl.show(@x+@x_t,@y+@y_t,@tic)
+		print("Mode: "+ModeNames[@mode],@x,@y-12)
+		@girl.show(@x+@x_t,@y+@y_t,@tic,@dist)
 	end
 
 	def change_mode(mode=nil)
