@@ -48,7 +48,8 @@ class Girl
 		end
 		d_t=(tic-@start_tic)/8%4
 		d_t=1 if d_t==3
-		d_t=1 if dist and dist>1
+		d_t=1 if dist and dist.abs<=1
+		trace("dist:"+dist.inspect)
 		flip=if @direction[0]>0 or (@direction[0]==0 and d_t==2)
 			then 1 else 0 end
 		if d_x.zero? and d_y.zero? then
@@ -129,6 +130,7 @@ class FollowerStatus
 		@y+=dy_
 		@x=[[0,@x].max,Width].min
 		@y=[[0,@y].max,Height].min
+		@target_dist=avg_dist
 		@tic+=1
 	end
 
@@ -156,7 +158,7 @@ class FollowerStatus
 
 	def show
 		print("Mode: "+ModeNames[@mode],@x,@y-12)
-		@girl.show(@x+@x_t,@y+@y_t,@tic,@dist)
+		@girl.show(@x+@x_t,@y+@y_t,@tic,@dist-@target_dist)
 	end
 
 	def change_mode(mode=nil)
