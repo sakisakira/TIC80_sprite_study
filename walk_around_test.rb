@@ -49,7 +49,6 @@ class Girl
 		d_t=(tic-@start_tic)/8%4
 		d_t=1 if d_t==3
 		d_t=1 if dist and dist.abs<=1
-		trace("dist:"+dist.inspect)
 		flip=if @direction[0]>0 or (@direction[0]==0 and d_t==2)
 			then 1 else 0 end
 		if d_x.zero? and d_y.zero? then
@@ -94,6 +93,7 @@ class FollowerStatus
 		@x_t=0
 		@y_t=0
 		@tic=0
+		@angle=0
 		@mode=Mode::Neutral
 		AvgDist=20
 		MaxSpeed=2
@@ -118,7 +118,46 @@ class FollowerStatus
 		end
 	end
 
-	def update_pos(max_speed,avg_dist)
+	def orbit_direction(avg_dist)
+		dx=@followee.last_x-@x
+		dy=@followee.last_y-@y
+		dist=[(dx*dx+dy*dy)**0.5,0.5].max
+		@followee_dist=dist
+		dx/=dist
+		dy/=dist
+		if dist>=avg_dist then
+			[dx,dy]
+		else
+			[-dx,-dy]
+		end
+	end
+
+	def target_direction(avg_dist)
+		target_x=@followee.last_x+avg_dist*Math::cos(@angle)
+		target_y=@followee.last_y+avg_dist*Math::sin(@angle)
+		dx=target_x-@x
+		dy=target_y-@y
+		dist=[(dx*dx+dy*dy)**0.5,0.5].max
+		@target_dist=dist
+		dx/=dist
+		dy/=dist
+		[dx,dy]
+	end
+
+	def update_pos(max_speed,avg_dist,angle,ratio)
+		o_dx,o_dy=orbit_direction(avg_dist)
+		t_dx,t_dy=target_direction(avg_dist)
+		dx=ratio*o_dx+(1-ratio)*t_dx
+		dy=ratio*o_dy+(1-ratio)*t_dy
+		len=[(dx*dx+dy*dy)**0.5,0.5].max
+		#### TODO: implement calculation of speed!!
+		dx=(dx/len)*speed
+		dy=(dy/len)*speed
+
+		###### working
+	end
+
+	def keep_distance(max_speed,avg_dist)
 		dx=@followee.last_x-@x
 		dy=@followee.last_y-@y
 		@dist=[(dx*dx+dy*dy)**0.5,0.5].max
@@ -134,12 +173,16 @@ class FollowerStatus
 		@tic+=1
 	end
 
+	def move_around(max_speed,avg_dist)
+		######## working
+	end
+
 	def update_neutral
-		update_pos(MaxSpeed,AvgDist)
+		keep_distance(MaxSpeed,AvgDist)
 	end
 
 	def update_happiness
-		update_pos(MaxSpeed,AvgDist)
+		keep_distance(MaxSpeed,AvgDist)
 		case @tic%60
 		when 0
 			@y_t=-10
@@ -149,11 +192,11 @@ class FollowerStatus
 	end
 
 	def update_anger
-		update_pos(MaxSpeed*1.5,AvgDist*2)
+		keep_distance(MaxSpeed*1.5,AvgDist*2)
 	end
 
 	def update_sadness
-		update_pos(MaxSpeed*0.6,AvgDist*1.5)
+		keep_distance(MaxSpeed*0.6,AvgDist*1.5)
 	end
 
 	def show
