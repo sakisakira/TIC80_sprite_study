@@ -1,4 +1,4 @@
-# -*- tab-width : 4; indent-tabs-mode: t  -*-
+# -*- tab-width : 4; indent-tabs-mode : t  -*-
 # title:   grass quarter walk
 # author:  SAkira <sakisakira@gmail.com>
 # desc:    short description
@@ -118,23 +118,24 @@ class FollowerStatus
 		end
 	end
 
-	def orbit_direction(avg_dist)
+	def orbit_dir_dist(avg_dist)
 		dx=@followee.last_x-@x
 		dy=@followee.last_y-@y
-		dist=[(dx*dx+dy*dy)**0.5,0.5].max
-		@followee_dist=dist
-		dx/=dist
-		dy/=dist
+		f_dist=[(dx*dx+dy*dy)**0.5,0.5].max
+		@followee_dist=f_dist
+		dx/=f_dist
+		dy/=f_dist
+		dist = (f_dist-avg_dist).abs
 		if dist>=avg_dist then
-			[dx,dy]
+			[dx,dy,dist]
 		else
-			[-dx,-dy]
+			[-dx,-dy,dist]
 		end
 	end
 
-	def target_direction(avg_dist)
-		target_x=@followee.last_x+avg_dist*Math::cos(@angle)
-		target_y=@followee.last_y+avg_dist*Math::sin(@angle)
+	def target_dir(avg_dist,angle)
+		target_x=@followee.last_x+avg_dist*Math::cos(angle)
+		target_y=@followee.last_y+avg_dist*Math::sin(angle)
 		dx=target_x-@x
 		dy=target_y-@y
 		dist=[(dx*dx+dy*dy)**0.5,0.5].max
@@ -145,26 +146,15 @@ class FollowerStatus
 	end
 
 	def update_pos(max_speed,avg_dist,angle,ratio)
-		o_dx,o_dy=orbit_direction(avg_dist)
-		t_dx,t_dy=target_direction(avg_dist)
+		o_dx,o_dy,o_dist=orbit_dir_dist(avg_dist)
+		t_dx,t_dy=target_dir(avg_dist,angle)
 		dx=ratio*o_dx+(1-ratio)*t_dx
 		dy=ratio*o_dy+(1-ratio)*t_dy
 		len=[(dx*dx+dy*dy)**0.5,0.5].max
-		#### TODO: implement calculation of speed!!
-		dx=(dx/len)*speed
-		dy=(dy/len)*speed
-
-		###### working
-	end
-
-	def keep_distance(max_speed,avg_dist)
-		dx=@followee.last_x-@x
-		dy=@followee.last_y-@y
-		@dist=[(dx*dx+dy*dy)**0.5,0.5].max
-		speed=((@dist-avg_dist)*1.0/avg_dist)*max_speed
+		speed=((o_dist-avg_dist)*1.0/avg_dist)*max_speed
 		speed=[[-max_speed,speed].max,max_speed].min
-		dx_=(dx/@dist)*speed
-		dy_=(dy/@dist)*speed
+		dx_=(dx/len)*speed
+		dy_=(dy/len)*speed
 		@x+=dx_
 		@y+=dy_
 		@x=[[0,@x].max,Width].min
@@ -173,12 +163,32 @@ class FollowerStatus
 		@tic+=1
 	end
 
-	def move_around(max_speed,avg_dist)
-		######## working
+	def keep_distance(max_speed,avg_dist)
+		dx=@followee.last_x-@x
+		dy=@followee.last_y-@y
+		f_dist=[(dx*dx+dy*dy)**0.5,0.5].max
+		speed=((f_dist-avg_dist)*1.0/avg_dist)*max_speed
+		speed=[[-max_speed,speed].max,max_speed].min
+		dx_=(dx/f_dist)*speed
+		dy_=(dy/f_dist)*speed
+		@x+=dx_
+		@y+=dy_
+		@x=[[0,@x].max,Width].min
+		@y=[[0,@y].max,Height].min
+		@target_dist=avg_dist
+		@followee_dist=f_dist
+		@tic+=1
+	end
+
+	def move_around(max_speed,avg_dist,ratio)
+		period=8*60 # in tics.
+		@angle=(@tic%period)*2*Math::PI/period
+		update_pos(max_speed,avg_dist,@angle,ratio)
 	end
 
 	def update_neutral
-		keep_distance(MaxSpeed,AvgDist)
+	  #		keep_distance(MaxSpeed,AvgDist)
+	  move_around(MaxSpeed,AvgDist,1)
 	end
 
 	def update_happiness
@@ -201,7 +211,8 @@ class FollowerStatus
 
 	def show
 		print("Mode: "+ModeNames[@mode],@x,@y-12)
-		@girl.show(@x+@x_t,@y+@y_t,@tic,@dist-@target_dist)
+		dist_diff=@followee_dist-@target_dist
+		@girl.show(@x+@x_t,@y+@y_t,@tic,dist_diff)
 	end
 
 	def change_mode(mode=nil)
