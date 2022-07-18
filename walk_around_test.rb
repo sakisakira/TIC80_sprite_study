@@ -125,8 +125,8 @@ class FollowerStatus
 		@followee_dist=f_dist
 		dx/=f_dist
 		dy/=f_dist
-		dist = (f_dist-avg_dist).abs
-		if dist>=avg_dist then
+		dist=(f_dist-avg_dist).abs
+		if f_dist>=avg_dist then
 			[dx,dy,dist]
 		else
 			[-dx,-dy,dist]
