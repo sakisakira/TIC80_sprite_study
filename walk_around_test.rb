@@ -142,16 +142,17 @@ class FollowerStatus
 		@target_dist=dist
 		dx/=dist
 		dy/=dist
-		[dx,dy]
+		[dx,dy,dist]
 	end
 
 	def update_pos(max_speed,avg_dist,angle,ratio)
 		o_dx,o_dy,o_dist=orbit_dir_dist(avg_dist)
-		t_dx,t_dy=target_dir(avg_dist,angle)
+		t_dx,t_dy,t_dist=target_dir(avg_dist,angle)
 		dx=ratio*o_dx+(1-ratio)*t_dx
 		dy=ratio*o_dy+(1-ratio)*t_dy
 		len=[(dx*dx+dy*dy)**0.5,0.5].max
-		speed=((o_dist-avg_dist)*1.0/avg_dist)*max_speed
+		dist=ratio*(o_dist-avg_dist)+(1-ratio)*t_dist
+		speed=(dist/avg_dist)*max_speed
 		speed=[[-max_speed,speed].max,max_speed].min
 		dx_=(dx/len)*speed
 		dy_=(dy/len)*speed
@@ -188,7 +189,7 @@ class FollowerStatus
 
 	def update_neutral
 	  #		keep_distance(MaxSpeed,AvgDist)
-	  move_around(MaxSpeed,AvgDist,1)
+	  move_around(MaxSpeed,AvgDist,0)
 	end
 
 	def update_happiness
