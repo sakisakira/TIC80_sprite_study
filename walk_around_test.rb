@@ -95,8 +95,9 @@ class FollowerStatus
 		@tic=0
 		@angle=0
 		@mode=Mode::Neutral
+		@target_dist=999
 		AvgDist=20
-		MaxSpeed=2
+		MaxSpeed=1.25
 	end
 
 	def follow(girl)
@@ -188,8 +189,12 @@ class FollowerStatus
 	end
 
 	def update_neutral
-	  #		keep_distance(MaxSpeed,AvgDist)
-	  move_around(MaxSpeed,AvgDist,0)
+		#	keep_distance(MaxSpeed,AvgDist)
+		if @target_dist<AvgDist*1.1 then
+	  		move_around(MaxSpeed,AvgDist,0)
+		else
+			move_around(MaxSpeed,AvgDist,1)
+		end
 	end
 
 	def update_happiness
@@ -228,23 +233,30 @@ end # FollowerStatus
 $grass=Girl.new(GrassID)
 $condor=FollowerStatus.new(CondorID)
 $condor.follow($grass)
+$speed=0.75
 
 def TIC
 	dir=0
+	dx,dy=0,0
 	if btn(0) then # up
-		$y-=1
+		dy=-1
 	end
 	if btn(1) then # down
-		$y+=1
+		dy=1
 	end
 	if btn(2) then # left
-		$x-=1;dir=-1
+		dx=-1;dir=-1
 	end
 	if btn(3) then # right
-		$x+=1;dir=1
+		dx=1;dir=1
 	end
 	if btnp(4) then # A
 		$condor.change_mode
+	end
+	len=(dx*dx+dy*dy)**0.5
+	if len>0 then
+		$x+=dx/len
+		$y+=dy/len
 	end
 
 	vbank(0)
