@@ -48,7 +48,7 @@ class Girl
 		end
 		d_t=(tic-@start_tic)/8%4
 		d_t=1 if d_t==3
-		d_t=1 if dist and dist.abs<=1
+		d_t=1 if dist and dist.abs<=0.5
 		flip=if @direction[0]>0 or (@direction[0]==0 and d_t==2)
 			then 1 else 0 end
 		if d_x.zero? and d_y.zero? then
@@ -189,11 +189,11 @@ class FollowerStatus
 	end
 
 	def update_neutral
-		#	keep_distance(MaxSpeed,AvgDist)
+		keep_distance(MaxSpeed*0.5,AvgDist)
 		if @target_dist<AvgDist*1.1 then
-	  		move_around(MaxSpeed,AvgDist,0)
+	  		move_around(MaxSpeed*0.5,AvgDist,0)
 		else
-			move_around(MaxSpeed,AvgDist,1)
+			move_around(MaxSpeed*0.5,AvgDist,1)
 		end
 	end
 
