@@ -37,7 +37,7 @@ class Girl
 		return nil
 	end
 
-	def show(x,y,tic,dist=nil)
+	def show(x,y,tx,ty,tic,dist=nil)
 		d_x=x-@last_x
 		d_y=y-@last_y
 		if d_x.zero? and d_y.zero? then
@@ -59,7 +59,7 @@ class Girl
 			sid=sprite_id(d_x<=>0,d_y<=>0)+d_t*2
 		end
 		vbank(1)
-		spr(sid,x.to_i,y.to_i,0,1,flip,0,2,4)
+		spr(sid,x.to_i+tx,y.to_i+ty,0,1,flip,0,2,4)
 		@last_x,@last_y=x,y
 	end
 end # Girl
@@ -105,6 +105,7 @@ class FollowerStatus
 	end
 
 	def update
+		@x_t,@y_t=0,0
 		case @mode
 		when Mode::Neutral
 			update_neutral
@@ -197,12 +198,19 @@ class FollowerStatus
 		end
 	end
 
+	def jump(t,height,duration)
+		a=-4*height/(duration**2)
+		a*(t-duration/2)**2+height
+	end
+
 	def update_happiness
 		keep_distance(MaxSpeed,AvgDist)
-		case @tic%60
-		when 0
-			@y_t=-10
-		when 2
+		dt=@tic%60
+		height=10.0
+		duration=10.0
+		if dt<=duration then
+			@y_t=-jump(dt,height,duration)
+		else
 			@y_t=0
 		end
 	end
@@ -218,7 +226,7 @@ class FollowerStatus
 	def show
 		print("Mode: "+ModeNames[@mode],@x,@y-12)
 		dist_diff=@followee_dist-@target_dist
-		@girl.show(@x+@x_t,@y+@y_t,@tic,dist_diff)
+		@girl.show(@x,@y,@x_t,@y_t,@tic,dist_diff)
 	end
 
 	def change_mode(mode=nil)
@@ -265,11 +273,11 @@ def TIC
 	cls(0)
 	$condor.update
 	if $y<$condor.y then
-		$grass.show($x,$y,$tic)
+		$grass.show($x,$y,0,0,$tic)
 		$condor.show
 	else
 		$condor.show
-		$grass.show($x,$y,$tic)
+		$grass.show($x,$y,0,0,$tic)
 	end
 	$tic+=1
 end
