@@ -23,6 +23,12 @@ class Girl
 		@start_tic=0
 		@last_x,@last_y=0,0
 		@direction=[0,1]
+		case base_id
+		when GrassID
+			@sdiff=[8,28]
+		when CondorID
+			@sdiff=[8,31]
+		end
 	end
 
 	def sprite_id(d_x,d_y)
@@ -61,6 +67,13 @@ class Girl
 		vbank(1)
 		spr(sid,x.to_i+tx,y.to_i+ty,0,1,flip,0,2,4)
 		@last_x,@last_y=x,y
+	end
+
+	def shadow(x,y)
+		vbank(0)
+		cx=x+@sdiff[0]
+		cy=y+@sdiff[1]
+		elli(cx,cy,8,4,0)
 	end
 end # Girl
 
@@ -224,7 +237,8 @@ class FollowerStatus
 	end
 
 	def show
-		print("Mode: "+ModeNames[@mode],@x,@y-12)
+		vbank(1)
+		print("Mode: "+ModeNames[@mode],@x,@y-12,12)
 		dist_diff=@followee_dist-@target_dist
 		@girl.show(@x,@y,@x_t,@y_t,@tic,dist_diff)
 	end
@@ -235,6 +249,10 @@ class FollowerStatus
 		else
 			@mode=(@mode+1)%ModeNumber
 		end
+	end
+
+	def shadow
+		@girl.shadow(@x,@y)
 	end
 end # FollowerStatus
 
@@ -272,6 +290,8 @@ def TIC
 	vbank(1)
 	cls(0)
 	$condor.update
+	$grass.shadow($x,$y)
+	$condor.shadow
 	if $y<$condor.y then
 		$grass.show($x,$y,0,0,$tic)
 		$condor.show
