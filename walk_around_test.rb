@@ -93,8 +93,71 @@ class Girl
 		pix(x1-1,y0+1,col)
 		pix(x0+1,y1-1,col)
 		pix(x1-1,y1-1,col)
-		spr(224,@x+12,@y-12,0,1,0,0,2,2)
+		spr(224,x0,y0,0,1,0,0,2,2)
 	end
+
+	def beard(x0,y0,x1,y1)
+		bcx=(x0+x1)/2.0 # baloon center
+		bcy=(y0+y1)/2.0
+		gcx=@x+8.0 # girl head center
+		gcy=@y+8.0
+		dx=bcx-gcx
+		dy=gcy=gcy
+		prj=3
+		if dy.abs>dx.abs then
+		  if dy>0 then
+			bx=inter(gcy,bcy,gcx,bcx,y1)
+			edx=dx/dy*prj
+			beard_h(x0,x1,y1,bx,bx-edx,y1+prj)
+		  else
+			bx=inter(gcy,bcy,gcx,bcx,y0)
+			edx=dx/dy*prj
+			beard_h(x0,x1,y0,bx,bx-edx,y1-prj)
+		  end
+		else
+		  if dx>0 then
+			by=inter(gcx,bcx,gcy,bcy,x0)
+			edy=dy/dx*prj
+			beard_v(x0,y0,y1,x0-prj,by-edy)
+		  else
+			by=inter(gcx,bcx,gcy,bcy,x1)
+			edy=dy/dx*prj
+			beard_v(x1,y0,y1,x1+prj,by-edy)
+		  end
+		end
+	  end
+	private :beard
+
+	def beard_h(x0,x1,y,bx,ex,ey)
+	  bx0=bx-3
+	  bx1=bx+3
+	  bx0=x0 if bx0<x0
+	  bx1=x1 if bx1>x1
+	  bcol=0
+	  tri(bx0,y,bx1,y,ex,ey,bcol)
+	  fcol=15
+	  line(bx0,y,ex,ey,fcol)
+	  line(bx1,y,ex,ey,fcol)
+	end
+	private :beard_h
+
+	def beard_v(x,y0,y1,by,ex,ey)
+	  by0=by-3
+	  by1=by+3
+	  by0=y0 if by0<y0
+	  by1=y1 if by1>y1
+	  bcol=0
+	  tri(x,by0,x,by1,ex,ey,bcol)
+	  fcol=15
+	  line(x,by0,ex,ey,fcol)
+	  line(x,by1,ex,ey,fcol)
+	end
+	private :beard_v
+
+	def inter(s0,s1,d0,d1,s)
+		d0+(d1-d0)/(s1-s0)*(s-s0)
+	end
+	private :interpolate
 end # Girl
 
 $tic=0
