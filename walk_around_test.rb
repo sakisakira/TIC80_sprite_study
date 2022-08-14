@@ -73,7 +73,12 @@ class Girl
 		vbank(0)
 		cx=x+@sdiff[0]
 		cy=y+@sdiff[1]
-		elli(cx,cy,8,4,0)
+		elli(cx,cy,6,3,15)
+	end
+
+	def baloon(x,y)
+		vbank(0)
+		spr(224,x+12,y-12,1,1,0,0,2,2)
 	end
 end # Girl
 
@@ -254,6 +259,10 @@ class FollowerStatus
 	def shadow
 		@girl.shadow(@x,@y)
 	end
+
+	def baloon
+		@girl.baloon(@x,@y)
+	end
 end # FollowerStatus
 
 $grass=Girl.new(GrassID)
@@ -286,7 +295,7 @@ def TIC
 	end
 
 	vbank(0)
-	cls(15)
+	cls(14)
 	vbank(1)
 	cls(0)
 	$condor.update
@@ -299,6 +308,8 @@ def TIC
 		$condor.show
 		$grass.show($x,$y,0,0,$tic)
 	end
+	$grass.baloon($x,$y)
+	$condor.baloon
 	$tic+=1
 end
 
@@ -312,6 +323,10 @@ end
 # 018:ccca00ccaaaa0ccecaaa0ceeaaaa0ceeaaaa0cee8888ccee000cceeecccceeee
 # 019:cacccccccaaaaaaacaaacaaacaaaaccccaaaaaaac8888888cc000cccecccccec
 # 020:ccca00ccaaaa0ccecaaa0ceeaaaa0ceeaaaa0cee8888ccee000cceeecccceeee
+# 224:0000000000000000000000000000000000c0000000c0000000c0000000000000
+# 225:000000000000000000000000000000000000c0000000c000000cc00000000000
+# 240:000000000000000000000000000c0000000c0000000ccccc0000000000000000
+# 241:000000000000000000000000000c000000cc0000ccc000000000000000000000
 # </TILES>
 
 # <SPRITES>
