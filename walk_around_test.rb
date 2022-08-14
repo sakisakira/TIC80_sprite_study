@@ -29,6 +29,8 @@ class Girl
 		when CondorID
 			@sdiff=[8,31]
 		end
+		@baloon_bgcol=12
+		@baloon_lcol=15
 	end
 
 	def sprite_id(d_x,d_y)
@@ -84,7 +86,8 @@ class Girl
 		y0=@y-12
 		x1=x0+15
 		y1=y0+15
-		col=15
+		rect(x0+1,y0+1,x1-x0-1,y1-y0-1,@baloon_bgcol)
+		col=@baloon_lcol
 		line(x0+1,y0,x1-1,y0,col)
 		line(x0+1,y1,x1-1,y1,col)
 		line(x0,y0+1,x0,y1-1,col)
@@ -93,6 +96,7 @@ class Girl
 		pix(x1-1,y0+1,col)
 		pix(x0+1,y1-1,col)
 		pix(x1-1,y1-1,col)
+		beard(x0,y0,x1,y1)
 		spr(224,x0,y0,0,1,0,0,2,2)
 	end
 
@@ -133,9 +137,9 @@ class Girl
 	  bx1=bx+3
 	  bx0=x0 if bx0<x0
 	  bx1=x1 if bx1>x1
-	  bcol=0
+	  bcol=@baloon_bgcol
 	  tri(bx0,y,bx1,y,ex,ey,bcol)
-	  fcol=15
+	  fcol=@baloon_lcol
 	  line(bx0,y,ex,ey,fcol)
 	  line(bx1,y,ex,ey,fcol)
 	end
@@ -146,9 +150,9 @@ class Girl
 	  by1=by+3
 	  by0=y0 if by0<y0
 	  by1=y1 if by1>y1
-	  bcol=0
+	  bcol=@baloon_bgcol
 	  tri(x,by0,x,by1,ex,ey,bcol)
-	  fcol=15
+	  fcol=@baloon_lcol
 	  line(x,by0,ex,ey,fcol)
 	  line(x,by1,ex,ey,fcol)
 	end
@@ -347,6 +351,7 @@ $grass=Girl.new(GrassID)
 $condor=FollowerStatus.new(CondorID)
 $condor.follow($grass)
 $speed=0.75
+$bg_col=14
 
 def TIC
 	dir=0
@@ -373,7 +378,7 @@ def TIC
 	end
 
 	vbank(0)
-	cls(14)
+	cls($bg_col)
 	vbank(1)
 	cls(0)
 	$condor.update
@@ -401,10 +406,10 @@ end
 # 018:ccca00ccaaaa0ccecaaa0ceeaaaa0ceeaaaa0cee8888ccee000cceeecccceeee
 # 019:cacccccccaaaaaaacaaacaaacaaaaccccaaaaaaac8888888cc000cccecccccec
 # 020:ccca00ccaaaa0ccecaaa0ceeaaaa0ceeaaaa0cee8888ccee000cceeecccceeee
-# 224:0000000000000000000000000000000000c0000000c0000000c0000000000000
-# 225:000000000000000000000000000000000000c0000000c000000cc00000000000
-# 240:000000000000000000000000000c0000000c0000000ccccc0000000000000000
-# 241:000000000000000000000000000c000000cc0000ccc000000000000000000000
+# 224:0000000000000000000000000000000000d0000000d0000000d0000000000000
+# 225:0000000000000000000000000000000000000d0000000d0000000d0000000000
+# 240:000000000000000000000000000d0000000d0000000ddddd0000000000000000
+# 241:0000000000000000000000000000d0000000d000ddddd0000000000000000000
 # </TILES>
 
 # <SPRITES>
