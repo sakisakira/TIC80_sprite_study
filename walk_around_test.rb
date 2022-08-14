@@ -64,6 +64,8 @@ class Girl
 		else
 			sid=sprite_id(d_x<=>0,d_y<=>0)+d_t*2
 		end
+		@x=x.to_i
+		@y=y.to_i
 		vbank(1)
 		spr(sid,x.to_i+tx,y.to_i+ty,0,1,flip,0,2,4)
 		@last_x,@last_y=x,y
@@ -76,9 +78,22 @@ class Girl
 		elli(cx,cy,6,3,15)
 	end
 
-	def baloon(x,y)
+	def baloon
 		vbank(0)
-		spr(224,x+12,y-12,1,1,0,0,2,2)
+		x0=@x+12
+		y0=@y-12
+		x1=x0+15
+		y1=y0+15
+		col=15
+		line(x0+1,y0,x1-1,y0,col)
+		line(x0+1,y1,x1-1,y1,col)
+		line(x0,y0+1,x0,y1-1,col)
+		line(x1,y0+1,x1,y1-1,col)
+		pix(x0+1,y0+1,col)
+		pix(x1-1,y0+1,col)
+		pix(x0+1,y1-1,col)
+		pix(x1-1,y1-1,col)
+		spr(224,@x+12,@y-12,0,1,0,0,2,2)
 	end
 end # Girl
 
@@ -261,7 +276,7 @@ class FollowerStatus
 	end
 
 	def baloon
-		@girl.baloon(@x,@y)
+		@girl.baloon
 	end
 end # FollowerStatus
 
@@ -308,7 +323,7 @@ def TIC
 		$condor.show
 		$grass.show($x,$y,0,0,$tic)
 	end
-	$grass.baloon($x,$y)
+	$grass.baloon
 	$condor.baloon
 	$tic+=1
 end
