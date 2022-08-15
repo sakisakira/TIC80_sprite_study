@@ -89,10 +89,10 @@ class Girl
 
 	def self.show_baloon
 	  baloon_width=16
-	  group=filter_overlap(baloon_width)
-	  if not group.empty? then
-		center=baloon_center(group)
-		group.each do |g|
+	  cluster=find_cluster(baloon_width)
+	  if not cluster.empty? then
+		center=baloon_center(cluster)
+		cluster.each do |g|
 		  g.keep_dist(center,baloon_width)
 		end
 	  end
@@ -102,7 +102,7 @@ class Girl
 	  @@shown_girls = []
 	end
 
-	def self.filter_overlap(dist)
+	def self.find_cluster(dist)
 	  group=[]
 	  found=false
 	  @@shown_girls.each_with_index do |g0,i0|
@@ -132,6 +132,7 @@ class Girl
 
 	def keep_dist(center,dist)
 	  #################### working 2022.08.15
+	  
 	end
 	private :keep_dist
 
