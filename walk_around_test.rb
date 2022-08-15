@@ -64,12 +64,13 @@ class Girl
 		d_t=1 if dist and dist.abs<=0.5
 		flip=if @direction[0]>0 or (@direction[0]==0 and d_t==2)
 			then 1 else 0 end
-		if d_x.zero? and d_y.zero? then
+		rdx,rdy=refine_direction(d_x,d_y)
+		if rdx.zero? and rdy.zero? then
 			sid=sprite_id(@direction[0],@direction[1])+2
-		elsif d_x.zero? then
-			sid=sprite_id(0,d_y<=>0)+d_t%2*2
+		elsif rdx.zero? then
+			sid=sprite_id(0,rdy<=>0)+d_t%2*2
 		else
-			sid=sprite_id(d_x<=>0,d_y<=>0)+d_t*2
+			sid=sprite_id(rdx<=>0,rdy<=>0)+d_t*2
 		end
 		@x=x.to_i
 		@y=y.to_i
@@ -79,6 +80,22 @@ class Girl
 		@baloon=[@x+9,@y-12] # initial baloon position
 		@@shown_girls << self
 	end
+
+	def refine_direction(dx,dy)
+		return [0,0] if dx.zero? and dy.zero?
+		threshold=Math::tan(Math::PI/8)
+		if dx.abs>dy.abs then
+			if (dy/dx).abs<threshold then
+				return [dx<=>0,0]
+			end
+		else
+			if (dx/dy).abs<threshold then
+				return [0,dy<=>0]
+			end
+		end
+		[dx<=>0,dy<=>0]
+	end
+	private :refine_direction
 
 	def show_shadow(x,y)
 		vbank(0)
@@ -714,10 +731,10 @@ end
 # 243:ddddd700ddddd000dd5500000775000007750000032200000000000000000000
 # 244:000bbbdd000055dd000077dd0000555000037750000322200000000000000000
 # 245:dddddd00dddddd00dddddd000055500000775000007750000032200000000000
-# 252:00dd555d0000222d0000222000002220000022200000ddd00000000000000000
-# 253:aaaad000d555d00002220000022200000222000002220000022200000ddd0000
-# 254:000daaaa000d555d000022200000222000002220000022200000ddd000000000
-# 255:aaaad000d555d000022200000222000002220000022200000ddd000000000000
+# 252:00dd555d0000777d0000777000007770000022200000ddd00000000000000000
+# 253:aaaad000d555d00007770000077700000777000007770000022200000ddd0000
+# 254:000daaaa000d555d000077700000777000007770000022200000ddd000000000
+# 255:aaaad000d555d000077700000777000007770000022200000ddd000000000000
 # </SPRITES>
 
 # <WAVES>
