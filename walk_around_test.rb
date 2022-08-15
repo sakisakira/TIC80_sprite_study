@@ -11,7 +11,7 @@ GrassID=256
 CondorID=384
 
 class Girl
-	attr_reader(:last_x,:last_y,:direction)
+	attr_reader(:last_x,:last_y,:direction,:baloon)
 	W_Base=256-256
 	WSBase=262-256
 	WNBase=320-256
@@ -32,6 +32,10 @@ class Girl
 		end
 		@baloon_bgcol=14
 		@baloon_lcol=15
+	end
+
+	def <=>(other)
+	  object_id<=>other.object_id
 	end
 
 	def sprite_id(d_x,d_y)
@@ -72,27 +76,76 @@ class Girl
 		vbank(1)
 		spr(sid,x.to_i+tx,y.to_i+ty,0,1,flip,0,2,4)
 		@last_x,@last_y=x,y
+		@baloon=[@x+9,@y-12] # initial baloon position
 		@@shown_girls << self
 	end
 
-	def shadow(x,y)
+	def show_shadow(x,y)
 		vbank(0)
 		cx=x+@sdiff[0]
 		cy=y+@sdiff[1]
 		elli(cx,cy,6,3,15)
 	end
 
-	def self.baloon
-		@@shown_girls.each do |g|
-			########## working 2022.08.14
+	def self.show_baloon
+	  baloon_width=16
+	  group=filter_overlap(baloon_width)
+	  if not group.empty? then
+		center=baloon_center(group)
+		group.each do |g|
+		  g.keep_dist(center,baloon_width)
 		end
-		@@shown_girls = []
+	  end
+	  @@shown_girls.each do |g|
+		g.show_baloon
+	  end
+	  @@shown_girls = []
 	end
 
-	def baloon
+	def self.filter_overlap(dist)
+	  group=[]
+	  found=false
+	  @@shown_girls.each_with_index do |g0,i0|
+		(i0...@@shown_girls.length).each do |i1|
+		  g1=@@shown_girls[i1]
+		  if g0.baloon_dist(g1)<dist then
+			found=true
+			group<<g0
+			group<<g1
+		  end
+		end
+		break if found
+	  end
+	  group.sort.uniq
+	end
+
+	def self.baloon_center(girls)
+	  x,y=0,0
+	  girls.each do |g|
+		x+=g.baloon[0]
+		y+=g.baloon[1]
+	  end
+	  x/=girls.size
+	  y/=girls.size
+	  [x,y]
+	end
+
+	def keep_dist(center,dist)
+	  #################### working 2022.08.15
+	end
+	private :keep_dist
+
+	def baloon_dist(other)
+	  b0=@baloon
+	  b1=other.baloon
+	  [(b0[0]-b1[0]).abs,(b0[1]-b1[1]).abs].max
+	end
+	private :baloon_dist
+
+	def show_baloon
 		vbank(1)
-		x0=@x+9
-		y0=@y-12
+		x0=@baloon[0]
+		y0=@baloon[1]
 		x1=x0+15
 		y1=y0+15
 		rect(x0+1,y0+1,x1-x0-1,y1-y0-1,@baloon_bgcol)
@@ -105,11 +158,12 @@ class Girl
 		pix(x1-1,y0+1,col)
 		pix(x0+1,y1-1,col)
 		pix(x1-1,y1-1,col)
-		spike(x0,y0,x1,y1)
+		show_spike(x0,y0,x1,y1)
 		spr(224,x0,y0,0,1,0,0,2,2)
 	end
+	private :show_baloon
 
-	def spike(x0,y0,x1,y1)
+	def show_spike(x0,y0,x1,y1)
 		bcx=(x0+x1)/2.0 # baloon center
 		bcy=(y0+y1)/2.0
 		gcx=@x+8.0 # girl head center
@@ -121,27 +175,27 @@ class Girl
 		  if dy>0 then
 			bx=inter(gcy,bcy,gcx,bcx,y1)
 			edx=dx/dy*prj
-			spike_h(x0,x1,y1,bx,bx-edx,y1+prj)
+			show_spike_h(x0,x1,y1,bx,bx-edx,y1+prj)
 		  else
 			bx=inter(gcy,bcy,gcx,bcx,y0)
 			edx=dx/dy*prj
-			spike_h(x0,x1,y0,bx,bx-edx,y1-prj)
+			show_spike_h(x0,x1,y0,bx,bx-edx,y1-prj)
 		  end
 		else
 		  if dx>0 then
 			by=inter(gcx,bcx,gcy,bcy,x0)
 			edy=dy/dx*prj
-			spike_v(x0,y0,y1,x0-prj,by-edy)
+			show_spike_v(x0,y0,y1,x0-prj,by-edy)
 		  else
 			by=inter(gcx,bcx,gcy,bcy,x1)
 			edy=dy/dx*prj
-			spike_v(x1,y0,y1,x1+prj,by-edy)
+			show_spike_v(x1,y0,y1,x1+prj,by-edy)
 		  end
 		end
 	  end
-	private :spike
+	private :show_spike
 
-	def spike_h(x0,x1,y,sx,ex,ey)
+	def show_spike_h(x0,x1,y,sx,ex,ey)
 		w=6
 		sy0,sy1=y,y
 		sx0=sx-w/3
@@ -160,9 +214,9 @@ class Girl
 		line(sx0,sy0,ex,ey,fcol)
 		line(sx1,sy1,ex,ey,fcol)
 	end
-	private :spike_h
+	private :show_spike_h
 
-	def spike_v(x,y0,y1,by,ex,ey)
+	def show_spike_v(x,y0,y1,by,ex,ey)
 		w=6
 		sx0,sx1=x,x
 		sy0=sy-3
@@ -181,12 +235,12 @@ class Girl
 		line(sx0,sy0,ex,ey,fcol)
 		line(sx1,sy1,ex,ey,fcol)
 	end
-	private :spike_v
+	private :show_spike_v
 
 	def inter(s0,s1,d0,d1,s)
 		d0+(d1-d0)/(s1-s0)*(s-s0)
 	end
-	private :interpolate
+	private :inter
 end # Girl
 
 $tic=0
@@ -363,8 +417,8 @@ class FollowerStatus
 		end
 	end
 
-	def shadow
-		@girl.shadow(@x,@y)
+	def show_shadow
+		@girl.show_shadow(@x,@y)
 	end
 
 	def baloon
@@ -407,8 +461,8 @@ def TIC
 	vbank(1)
 	cls(0)
 	$condor.update
-	$grass.shadow($x,$y)
-	$condor.shadow
+	$grass.show_shadow($x,$y)
+	$condor.show_shadow
 	if $y<$condor.y then
 		$grass.show($x,$y,0,0,$tic)
 		$condor.show
@@ -416,8 +470,7 @@ def TIC
 		$condor.show
 		$grass.show($x,$y,0,0,$tic)
 	end
-	$grass.baloon
-	$condor.baloon
+	Girl.show_baloon
 	$tic+=1
 end
 
