@@ -17,6 +17,7 @@ class Girl
 	WNBase=320-256
 	N_Base=268-256
 	S_Base=332-256
+	@@shown_girls = []
 
 	def initialize(base_id)
 		@base_id=base_id
@@ -71,6 +72,7 @@ class Girl
 		vbank(1)
 		spr(sid,x.to_i+tx,y.to_i+ty,0,1,flip,0,2,4)
 		@last_x,@last_y=x,y
+		@@shown_girls << self
 	end
 
 	def shadow(x,y)
@@ -80,9 +82,16 @@ class Girl
 		elli(cx,cy,6,3,15)
 	end
 
+	def self.baloon
+		@@shown_girls.each do |g|
+			########## working 2022.08.14
+		end
+		@@shown_girls = []
+	end
+
 	def baloon
 		vbank(1)
-		x0=@x+12
+		x0=@x+9
 		y0=@y-12
 		x1=x0+15
 		y1=y0+15
