@@ -107,12 +107,12 @@ class Girl
 	  found=false
 	  @@shown_girls.each_with_index do |g0,i0|
 		(i0...@@shown_girls.length).each do |i1|
-		  g1=@@shown_girls[i1]
-		  if g0.baloon_dist(g1)<dist then
-			found=true
-			group<<g0
-			group<<g1
-		  end
+			g1=@@shown_girls[i1]
+			if g0.baloon_dist(g1)<dist then
+				found=true
+				group<<g0
+				group<<g1
+			end
 		end
 		break if found
 	  end
@@ -120,14 +120,14 @@ class Girl
 	end
 
 	def self.baloon_center(girls)
-	  x,y=0,0
-	  girls.each do |g|
-		x+=g.baloon[0]
-		y+=g.baloon[1]
-	  end
-	  x/=girls.size
-	  y/=girls.size
-	  [x,y]
+		x,y=0,0
+		girls.each do |g|
+			x+=g.baloon[0]
+			y+=g.baloon[1]
+		end
+		x/=girls.size
+		y/=girls.size
+		[x,y]
 	end
 
 	def keep_dist(center,dist)
@@ -137,9 +137,9 @@ class Girl
 	private :keep_dist
 
 	def baloon_dist(other)
-	  b0=@baloon
-	  b1=other.baloon
-	  [(b0[0]-b1[0]).abs,(b0[1]-b1[1]).abs].max
+		b0=@baloon
+		b1=other.baloon
+		[(b0[0]-b1[0]).abs,(b0[1]-b1[1]).abs].max
 	end
 	private :baloon_dist
 
