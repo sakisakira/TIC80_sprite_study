@@ -103,20 +103,27 @@ class Girl
 	end
 
 	def self.find_cluster(dist)
-	  group=[]
-	  found=false
-	  @@shown_girls.each_with_index do |g0,i0|
-		(i0...@@shown_girls.length).each do |i1|
-			g1=@@shown_girls[i1]
-			if g0.baloon_dist(g1)<dist then
-				found=true
-				group<<g0
-				group<<g1
+		pairs=[]
+		count=@@shown_girls.size
+		(0...count).each do |i0|
+			g0=@@shown_girls[i0]
+			((i0+1)...count).each do |i1|
+				g1=@@shown_girls[i1]
+				if g0.baloon_dist(g1)<dist then
+					pairs<<[i0,i1]
+				end
 			end
 		end
-		break if found
-	  end
-	  group.sort.uniq
+		return [] if pairs.empty?
+		cluster=pairs[0]
+		pairs.each do |i0,i1|
+			if cluster.include?(i0) or cluster.include?(i1) then
+				cluster+=[i0,i1]
+			end
+		end
+		cluster.sort.uniq.map do |i|
+			@@shown_girls[i]
+		end
 	end
 
 	def self.baloon_center(girls)
@@ -131,8 +138,19 @@ class Girl
 	end
 
 	def keep_dist(center,dist)
-	  #################### working 2022.08.15
-	  
+		if (center[0]-@baloon[0]).abs<dist then
+			if center[0]<@baloon[0] then
+				@baloon[0]=center[0]+dist/2
+			else
+				@baloon[0]=center[0]-dist/2
+			end
+		elsif (center[1]-@baloon[1]).abs<dist then
+			if center[1]<@baloon[1] then
+				@baloon[1]=center[1]+dist/2
+			else
+				@baloon[1]=center[1]-dist/2
+			end
+		end
 	end
 	private :keep_dist
 
@@ -186,11 +204,11 @@ class Girl
 		  if dx>0 then
 			by=inter(gcx,bcx,gcy,bcy,x0)
 			edy=dy/dx*prj
-			show_spike_v(x0,y0,y1,x0-prj,by-edy)
+			show_spike_v(x0,y0,y1,by,x0-prj,by-edy)
 		  else
 			by=inter(gcx,bcx,gcy,bcy,x1)
 			edy=dy/dx*prj
-			show_spike_v(x1,y0,y1,x1+prj,by-edy)
+			show_spike_v(x1,y0,y1,by,x1+prj,by-edy)
 		  end
 		end
 	  end
@@ -217,7 +235,7 @@ class Girl
 	end
 	private :show_spike_h
 
-	def show_spike_v(x,y0,y1,by,ex,ey)
+	def show_spike_v(x,y0,y1,sy,ex,ey)
 		w=6
 		sx0,sx1=x,x
 		sy0=sy-3
@@ -228,7 +246,7 @@ class Girl
 		end
 		if sy1>y1 then
 			sy1=y1
-			sx1=x-(ex-s<=>0)*(w-(y1-sy0))
+			sx1=x-(ex-x<=>0)*(w-(y1-sy0))
 		end
 		bcol=@baloon_bgcol
 		tri(sx0,sy0,sx1,sy1,ex,ey,bcol)
