@@ -34,10 +34,6 @@ class Girl
 		@baloon_lcol=15
 	end
 
-	def <=>(other)
-	  object_id<=>other.object_id
-	end
-
 	def sprite_id(d_x,d_y)
 		if d_x.zero? then
 			return @base_id+N_Base if d_y<0
