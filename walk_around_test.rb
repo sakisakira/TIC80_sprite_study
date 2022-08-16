@@ -11,7 +11,22 @@ GrassID=256
 CondorID=384
 
 class Girl
-	attr_reader(:last_x,:last_y,:direction,:baloon)
+	attr_reader(:last_x,:last_y,:direction,:baloon,:mode)
+
+	module Mode
+		Neutral = 0
+		Happiness = 1
+		Anger = 2
+		Sadness = 3
+	end
+	ModeNames = {
+		Mode::Neutral => 'Neutral',
+		Mode::Happiness => 'Happiness',
+		Mode::Anger => 'Anger',
+		Mode::Sadness => 'Sadness'
+	}
+	ModeNumber=ModeNames.size
+
 	W_Base=256-256
 	WSBase=262-256
 	WNBase=320-256
@@ -30,9 +45,23 @@ class Girl
 		when CondorID
 			@sdiff=[8,31]
 		end
+		@mode=Mode::Neutral
 		@baloon_bgcol=14
 		@baloon_lcol=15
 	end
+
+	def change_mode(mode=nil)
+		if mode then
+			@mode=mode
+		else
+			@mode=(@mode+1)%ModeNumber
+		end
+	end
+
+	def mode_sprite_id
+		224+@mode*2
+	end
+	private :mode_sprite_id
 
 	def sprite_id(d_x,d_y)
 		if d_x.zero? then
@@ -191,7 +220,7 @@ class Girl
 		pix(x0+1,y1-1,col)
 		pix(x1-1,y1-1,col)
 		show_spike(x0,y0,x1,y1)
-		spr(224,x0,y0,0,1,0,0,2,2)
+		spr(mode_sprite_id,x0,y0,0,1,0,0,2,2)
 	end
 	private :show_baloon
 
@@ -283,19 +312,6 @@ Height=130-32
 
 class FollowerStatus
 	attr_reader(:x,:y)
-	module Mode
-		Neutral = 0
-		Happiness = 1
-		Anger = 2
-		Sadness = 3
-	end
-	ModeNames = {
-		Mode::Neutral => 'Neutral',
-		Mode::Happiness => 'Happiness',
-		Mode::Anger => 'Anger',
-		Mode::Sadness => 'Sadness'
-	}
-	ModeNumber=ModeNames.size
 
 	def initialize(base_id)
 		@girl= Girl.new(base_id)
@@ -305,7 +321,6 @@ class FollowerStatus
 		@y_t=0
 		@tic=0
 		@angle=0
-		@mode=Mode::Neutral
 		@target_dist=999
 		AvgDist=20
 		MaxSpeed=1.25
@@ -317,17 +332,17 @@ class FollowerStatus
 
 	def update
 		@x_t,@y_t=0,0
-		case @mode
-		when Mode::Neutral
+		case @girl.mode
+		when Girl::Mode::Neutral
 			update_neutral
-		when Mode::Happiness
+		when Girl::Mode::Happiness
 			update_happiness
-		when Mode::Anger
+		when Girl::Mode::Anger
 			update_anger
-		when Mode::Sadness
+		when Girl::Mode::Sadness
 			update_sadness
 		else
-			print("illegal mode",@mode)
+			print("illegal mode",@girl.mode)
 		end
 	end
 
@@ -436,17 +451,13 @@ class FollowerStatus
 
 	def show
 		vbank(1)
-		print("Mode: "+ModeNames[@mode],@x+32,@y-12,12)
+		print("Mode: "+Girl::ModeNames[@girl.mode],@x+32,@y-12,12)
 		dist_diff=@followee_dist-@target_dist
 		@girl.show(@x,@y,@x_t,@y_t,@tic,dist_diff)
 	end
 
 	def change_mode(mode=nil)
-		if mode then
-			@mode=mode
-		else
-			@mode=(@mode+1)%ModeNumber
-		end
+		@girl.change_mode(mode)
 	end
 
 	def show_shadow
