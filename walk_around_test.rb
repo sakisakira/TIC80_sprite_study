@@ -10,12 +10,81 @@
 GrassID=256
 CondorID=384
 
-class RaceStatus
-	attr_reader(:fatigue, :oxigen, :suger, :speed, :power, :intention)
-end
-
 class GirlParameter
 	attr_reader(:lung, :muscle, :nerve, :judgment, :weight)
+
+	def initialize(seed)
+		srand(seed)
+		min_val=0.5
+		@lung=rand(min_val..1.0)
+		@muscle=rand(min_val..1.0)
+		@nerve=rand(min_val..1.0)
+		@judgment=rand(min_val..1.0)
+		@weight=rand(min_val..1.0)
+	end
+end
+
+class Runner
+	attr_accessor(:position)
+	attr_reader(:fatigue, :oxigen, :suger, :speed, :power, :intention)
+	attr_reader(:parameter, :index)
+
+	def initialize(index,seed)
+		@index=index
+		@parameter=GirlParameter.new(seed)
+		##### working 2022.09.04
+	end
+
+	def simulate(tic,runners)
+		@tic=tic
+		@runners=runners
+		#### working 2022.09.04
+	end
+
+	def elapsed_sec
+		@tic / 60.0
+	end
+
+	def group_indices
+		max_dist=2.0
+		indices=[self.index]
+		begin
+			new_indices=[]
+			indices.each do |i|
+				runner=@runners[i]
+				@runners.each do |r|
+					if not indices.include?(r.index) and
+						(runner.position[0]-r.position[0]).abs<=max_dist then
+						new_indices<<r.index
+					end
+				end
+			end
+			indices=(indices+new_indices).sort.uniq
+		end until new_indices.empty?
+		indices
+	end
+
+end
+
+class Race
+	def initialize(num_runner)
+		@tic=0
+		@runners = []
+		@seed=srand
+		num_runner.times do |i|
+			@runners << Runnew.new(@seed+i)
+		end
+		##### working 2022.09.04
+	end
+
+	def simulate
+		@runners.each do |runner|
+			others=@runner.select{|r| r!=runner}
+			runner.simulate(@tic,others)
+		end
+		@tic+=1
+		#### working 2022.09.04
+	end
 end
 
 class Girl
