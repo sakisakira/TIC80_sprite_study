@@ -10,6 +10,14 @@
 GrassID=256
 CondorID=384
 
+class RaceStatus
+	attr_reader(:fatigue, :oxigen, :suger, :speed, :power, :intention)
+end
+
+class GirlParameter
+	attr_reader(:lung, :muscle, :nerve, :judgment, :weight)
+end
+
 class Girl
 	attr_reader(:last_x,:last_y,:direction,:baloon,:mode)
 
