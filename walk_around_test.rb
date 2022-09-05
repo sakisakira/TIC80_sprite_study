@@ -27,10 +27,9 @@ end
 class Runner
 	attr_accessor(:position)
 	attr_reader(:fatigue, :oxigen, :suger, :speed, :power, :intention)
-	attr_reader(:parameter, :index)
+	attr_reader(:parameter)
 
-	def initialize(index,seed)
-		@index=index
+	def initialize(seed)
 		@parameter=GirlParameter.new(seed)
 		##### working 2022.09.04
 	end
@@ -38,7 +37,9 @@ class Runner
 	def simulate(tic,runners)
 		@tic=tic
 		@runners=runners
-		#### working 2022.09.04
+		@group_indices=nil
+		@closest=nil
+		@predecessor=nil
 	end
 
 	def elapsed_sec
@@ -46,22 +47,70 @@ class Runner
 	end
 
 	def group_indices
+		return @group_indices if @group_indices
 		max_dist=2.0
-		indices=[self.index]
+		indices=[@runners.index(self)]
 		begin
 			new_indices=[]
 			indices.each do |i|
-				runner=@runners[i]
-				@runners.each do |r|
-					if not indices.include?(r.index) and
-						(runner.position[0]-r.position[0]).abs<=max_dist then
-						new_indices<<r.index
-					end
+				r_i=@runners[i]
+				@runners.size.times do |j|
+					next if indices.include?(j)
+					r_j=@runners[j]
+					diff=r_j.position[0]-r_i.position[0]
+					next if diff.abs>max_dist
+					new_indices<<j
 				end
 			end
 			indices=(indices+new_indices).sort.uniq
 		end until new_indices.empty?
-		indices
+		@group_indices=indices
+	end
+
+	def group_length
+		pos_min=Float.MAX
+		pos_max=-FLoat.MAX
+		group_indices.each do |i|
+			r=@runner[i]
+			pos_min=[pos_min,r.position[0]].min
+			pos_max=[pos_max,r.position[0]].max
+		end
+		pos_max-pos_min
+	end
+
+	def group_count
+		group_indices.size
+	end
+
+	def closest
+		return @closest if @closest
+		diff_i=[Float::MAX,-1]
+		@runners.each_with_index do |r,i|
+			next if self==r
+			diff=r.position[0]-self.position[0]
+			if diff.abs<diff_i[0].abs then
+				diff_i=[diff,i]
+			end
+		end
+		@closest=diff_i
+	end
+
+	def predecessor
+		return @predecessor if @predecessor
+		diff_i=[Float::MAX,-1]
+		@runners.each_with_index do |r,i|
+			next if self==r
+			diff=r.position[0]-self.position[0]
+			if 0<diff and diff_i[0] then
+				diff_i=[diff,i]
+			end
+		end
+		@predecessor=diff_i
+	end
+
+	def distance_top
+		top_pos=@runners.map {|r| r.position[0]}.max
+		top_pos-self.position[0]
 	end
 
 end
@@ -72,15 +121,14 @@ class Race
 		@runners = []
 		@seed=srand
 		num_runner.times do |i|
-			@runners << Runnew.new(@seed+i)
+			@runners << Runner.new(@seed+i)
 		end
 		##### working 2022.09.04
 	end
 
 	def simulate
 		@runners.each do |runner|
-			others=@runner.select{|r| r!=runner}
-			runner.simulate(@tic,others)
+			runner.simulate(@tic,@runners)
 		end
 		@tic+=1
 		#### working 2022.09.04
