@@ -16,11 +16,12 @@ class GirlParameter
 	def initialize(seed)
 		srand(seed)
 		min_val=0.5
-		@lung=rand(min_val..1.0)
-		@muscle=rand(min_val..1.0)
-		@nerve=rand(min_val..1.0)
-		@judgment=rand(min_val..1.0)
-		@weight=rand(min_val..1.0)
+		max_val=1.5
+		@lung=rand(min_val..max_val)
+		@muscle=rand(min_val..max_val)
+		@nerve=rand(min_val..max_val)
+		@judgment=rand(min_val..max_val)
+		@weight=rand(min_val..max_val)
 	end
 end
 
@@ -34,16 +35,52 @@ class Runner
 		##### working 2022.09.04
 	end
 
-	def simulate(tic,runners)
+	def simulate(tic,runners,distance)
 		@tic=tic
 		@runners=runners
+		@distance=distance
 		@group_indices=nil
 		@closest=nil
 		@predecessor=nil
 	end
 
+	def power
+		d_s=@suger/remaining_tic
+		d_o=@oxigen/remaining_tic
+		d_f=@fatigue/remaining_tic
+		w=@prameter.weight
+		l=@parameter.lung
+		m=@parameter.muscle
+		p0=d_s*w+d_o*l+d_f
+		a0=resistant*@speed
+		a1=p_0/w
+		####### working 2022.09.08
+	end
+
 	def elapsed_sec
-		@tic / 60.0
+		@tic/60.0
+	end
+
+	def remaining_distance
+		@distance-position[0]
+	end
+
+	def remaining_tic
+		((remaining_distance/target_speed)*60).to_i
+	end
+
+	def target_speed
+		1000.0/60.0
+	end
+
+	def target_time
+		rem_sec=remaining_distance/target_speed
+		sec=elapsed_sec+rem_sec
+		[sec,@distance/target_speed].min
+	end
+
+	def resistant
+		0.5*@speed+0.5*@parameter.weight
 	end
 
 	def group_indices
@@ -112,11 +149,11 @@ class Runner
 		top_pos=@runners.map {|r| r.position[0]}.max
 		top_pos-self.position[0]
 	end
-
-end
+end # Runner
 
 class Race
-	def initialize(num_runner)
+	def initialize(num_runner, distance)
+		@distance=distance
 		@tic=0
 		@runners = []
 		@seed=srand
@@ -128,12 +165,12 @@ class Race
 
 	def simulate
 		@runners.each do |runner|
-			runner.simulate(@tic,@runners)
+			runner.simulate(@tic,@runners,@distance)
 		end
 		@tic+=1
 		#### working 2022.09.04
 	end
-end
+end # Race
 
 class Girl
 	attr_reader(:last_x,:last_y,:direction,:baloon,:mode)
