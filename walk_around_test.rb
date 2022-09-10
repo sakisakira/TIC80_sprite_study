@@ -30,6 +30,9 @@ class Runner
 	attr_reader(:fatigue, :oxigen, :suger, :speed, :power, :intention)
 	attr_reader(:parameter)
 
+	# (1-SpeedDiff)**300==1/2, half-life is 5sec.
+	SpeedDiff=1.0-2**(-1.0/300.0) 
+
 	def initialize(seed)
 		@parameter=GirlParameter.new(seed)
 		##### working 2022.09.04
