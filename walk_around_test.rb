@@ -30,12 +30,35 @@ class Runner
 	attr_reader(:fatigue, :oxigen, :suger, :speed, :power, :intention)
 	attr_reader(:parameter)
 
-	# (1-SpeedDiff)**300==1/2, half-life is 5sec.
-	SpeedDiff=1.0-2**(-1.0/300.0) 
+	# (1-SpeedDiff)**300==1/2, half-life in 5sec.
+	SpeedDiff=1-2**(-1.0/300.0)
+	StdSpeed=1000.0/60.0 # [m/s]
+	StdTicks=1600.0*StdSpeed*60
+	ResistanceRatio=SpeedDiff/StdSpeed
 
 	def initialize(seed)
 		@parameter=GirlParameter.new(seed)
 		##### working 2022.09.04
+	end
+
+	def lung
+	  @parameter.lung
+	end
+
+	def muscle
+	  @parameter.muscle
+	end
+
+	def nerve
+	  @parameter.nerve
+	end
+
+	def judgement
+	  @parameter.judgement
+	end
+
+	def weight
+	  @parameter.weight
 	end
 
 	def simulate(tic,runners,distance)
@@ -47,17 +70,27 @@ class Runner
 		@predecessor=nil
 	end
 
-	def power
+	def updated_speed
+	  speed+adj_accel-adj_resist
+	end
+
+	def adj_resist
+	  ResistanceRatio*weight*speed
+	end
+
+	def adj_aceel
+	  a=power_ratio/weight
+	  SpeedDiff*a
+	end
+	
+	def power_ratio
 		d_s=@suger/remaining_tic
 		d_o=@oxigen/remaining_tic
 		d_f=@fatigue/remaining_tic
 		w=@prameter.weight
 		l=@parameter.lung
 		m=@parameter.muscle
-		p0=d_s*w+d_o*l+d_f
-		a0=resistant*@speed
-		a1=p_0/w
-		####### working 2022.09.08
+		d_s*w+d_o*l+d_f)/3
 	end
 
 	def elapsed_sec
@@ -80,10 +113,6 @@ class Runner
 		rem_sec=remaining_distance/target_speed
 		sec=elapsed_sec+rem_sec
 		[sec,@distance/target_speed].min
-	end
-
-	def resistant
-		0.5*@speed+0.5*@parameter.weight
 	end
 
 	def group_indices
