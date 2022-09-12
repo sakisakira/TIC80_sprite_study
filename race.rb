@@ -506,6 +506,8 @@ Height=130-32
 
 class FollowerStatus
 	attr_reader(:x,:y)
+	AvgDist=20
+	MaxSpeed=1.25
 
 	def initialize(base_id)
 		@girl= Girl.new(base_id)
@@ -516,8 +518,6 @@ class FollowerStatus
 		@tic=0
 		@angle=0
 		@target_dist=999
-		AvgDist=20
-		MaxSpeed=1.25
 	end
 
 	def follow(girl)
