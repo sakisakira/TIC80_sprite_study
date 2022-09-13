@@ -37,8 +37,14 @@ class Runner
 	ResistanceRatio=SpeedDiff/StdSpeed
 
 	def initialize(seed)
-		@parameter=GirlParameter.new(seed)
-		##### working 2022.09.04
+	  @parameter=GirlParameter.new(seed)
+	  @fatigue=1.0
+	  @oxigen=1.0
+	  @suger=1.0
+	  @power=1.0
+	  @intention=1.0
+	  @speed=0.0
+	  @position=[0.0,0.5]
 	end
 
 	def lung
@@ -68,6 +74,8 @@ class Runner
 		@group_indices=nil
 		@closest=nil
 		@predecessor=nil
+		@position[0]+=@speed/60
+		@speed=updated_speed
 	end
 
 	def updated_speed
@@ -78,18 +86,18 @@ class Runner
 	  ResistanceRatio*weight*speed
 	end
 
-	def adj_aceel
+	def adj_accel
 	  a=power_ratio/weight
 	  SpeedDiff*a
 	end
-	
+
 	def power_ratio
 		d_s=@suger/remaining_tic
 		d_o=@oxigen/remaining_tic
 		d_f=@fatigue/remaining_tic
-		w=@prameter.weight
-		l=@parameter.lung
-		m=@parameter.muscle
+		w=weight
+		l=lung
+		m=muscle
 		(d_s*w+d_o*l+d_f)/3
 	end
 
@@ -201,6 +209,10 @@ class Race
 		end
 		@tic+=1
 		#### working 2022.09.04
+	end
+
+	def runner(index)
+	  @runners[index]
 	end
 end # Race
 
