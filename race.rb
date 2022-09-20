@@ -1,4 +1,4 @@
-# -*- tab-width : 4; indent-tabs-mode : t  -*-
+# -*- tab-width : 4; indent-tabs-mode : t -*-
 # title:   race test
 # author:  SAkira <sakisakira@gmail.com>
 # desc:    short description
@@ -25,10 +25,49 @@ class GirlParameter
 	end
 end
 
+class GirlStatus
+	attr_reader(:suger,:oxigen,:fatigue,:intention)
+	
+	def initialize(suger,oxigen,fatigue,intention)
+		@suger=suger
+		@oxigen=oxigen
+		@fatigue=fatigue
+		@intention=intention
+	end
+
+	def s
+		suger
+	end
+	
+	def o
+		oxigen
+	end
+	
+	def f
+		fatigue
+	end
+	
+	def i
+		intention
+	end
+	
+	def /(d)
+		GirlStatus.new(s/d,o/d,f/d,i/d)
+	end
+	
+	def -(other)
+		s_=s-other.s
+		o_=o-other.o
+		f_=f-other.f
+		i_=i-other.i
+		GirlStatus.new(s_,o_,f_,i_)
+	end
+end
+
 class Runner
 	attr_accessor(:position)
-	attr_reader(:fatigue, :oxigen, :suger, :speed, :power, :intention)
-	attr_reader(:parameter)
+	attr_reader(:speed, :power)
+	attr_reader(:parameter,:status)
 
 	# (1-SpeedDiff)**300==1/2, half-life in 5sec.
 	SpeedDiff=1-2**(-1.0/300.0)
@@ -37,34 +76,31 @@ class Runner
 	ResistanceRatio=SpeedDiff/StdSpeed
 
 	def initialize(seed)
-	  @parameter=GirlParameter.new(seed)
-	  @fatigue=1.0
-	  @oxigen=1.0
-	  @suger=1.0
-	  @power=1.0
-	  @intention=1.0
-	  @speed=0.0
-	  @position=[0.0,0.5]
+		@parameter=GirlParameter.new(seed)
+		@status=GirlStatus.new(1.0,1.0,1.0,1.0)
+		@power=1.0
+		@speed=0.0
+		@position=[0.0,0.5]
 	end
 
 	def lung
-	  @parameter.lung
+		@parameter.lung
 	end
 
 	def muscle
-	  @parameter.muscle
+		@parameter.muscle
 	end
 
 	def nerve
-	  @parameter.nerve
+		@parameter.nerve
 	end
 
 	def judgement
-	  @parameter.judgement
+		@parameter.judgement
 	end
 
 	def weight
-	  @parameter.weight
+		@parameter.weight
 	end
 
 	def simulate(tic,runners,distance)
@@ -76,31 +112,33 @@ class Runner
 		@predecessor=nil
 		@position[0]+=@speed/60
 		@speed=updated_speed
+		t=remaining_tic
+		@status=@status-@status/t if t>0
 	end
 
 	def updated_speed
-	  speed+adj_accel-adj_resist
+		speed+adj_accel-adj_resist
 	end
 
 	def adj_resist
-	  ResistanceRatio*weight*speed
+		ResistanceRatio*weight*speed
 	end
 
 	def adj_accel
-	  a=power_ratio/weight
-	  SpeedDiff*a
+		a=power_ratio/weight
+		SpeedDiff*a
 	end
 
 	def power_ratio
-		d_s=@suger/remaining_tic
-		d_o=@oxigen/remaining_tic
-		d_f=@fatigue/remaining_tic
+		t=remaining_tic
+		return 0.0 if t<=0
+		d_s=@status/t
 		w=weight
 		l=lung
 		m=muscle
-		(d_s*w+d_o*l+d_f)/3
+		StdTicks*(d_s.s*w+d_s.o*l+d_s.f)/3
 	end
-
+	
 	def elapsed_sec
 		@tic/60.0
 	end
@@ -110,7 +148,7 @@ class Runner
 	end
 
 	def remaining_tic
-		((remaining_distance/target_speed)*60).to_i
+		[0,((remaining_distance/target_speed)*60).to_i].max
 	end
 
 	def target_speed
@@ -192,13 +230,13 @@ class Runner
 end # Runner
 
 class Race
-	def initialize(num_runner, distance)
+	def initialize(num_runner,distance,seed=srand)
 		@distance=distance
 		@tic=0
 		@runners = []
-		@seed=srand
+		@seed=seed
 		num_runner.times do |i|
-			@runners << Runner.new(@seed+i)
+			@runners<<Runner.new(@seed+i)
 		end
 		##### working 2022.09.04
 	end
