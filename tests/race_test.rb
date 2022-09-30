@@ -2,13 +2,20 @@
 
 require '../race.rb'
 
+class Float
+    def fmt
+        sprintf("%.5f", self)
+    end
+end
+
 race = Race.new(1, 1600, 1)
 p race
-6000.times do |i|
+(120*60).times do |i|
   race.simulate
   r=race.runner(0)
-  print i, ":", r.position[0], " v:", r.speed
-  print " r:", r.adj_resist, " a:", r.adj_accel
-  print " pr:", r.power_ratio, "\n"
+  print (i/60.0).fmt
+  print " d:", r.position[0].fmt, " v:", r.speed.fmt
+  print " r:", r.adj_resist.fmt, " a:", r.adj_accel.fmt
+  print " pr:", r.power_ratio.fmt, " t:", r.remaining_tic, "\n"
 end
 

@@ -72,7 +72,7 @@ class Runner
 	# (1-SpeedDiff)**300==1/2, half-life in 5sec.
 	SpeedDiff=1-2**(-1.0/300.0)
 	StdSpeed=1000.0/60.0 # [m/s]
-	StdTicks=1600.0*StdSpeed*60
+	StdTicks=(1600.0/StdSpeed)*60
 	ResistanceRatio=SpeedDiff/StdSpeed
 
 	def initialize(seed)
