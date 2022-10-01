@@ -136,7 +136,8 @@ class Runner
 		w=weight
 		l=lung
 		m=muscle
-		StdTicks*(d_s.s*w+d_s.o*l+d_s.f)/3
+		ratio=(d_s.s*w+d_s.o*l+d_s.f)/3
+		StdTicks*ratio
 	end
 	
 	def elapsed_sec
