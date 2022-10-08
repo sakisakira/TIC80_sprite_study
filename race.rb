@@ -74,6 +74,8 @@ class Runner
 	StdSpeed=1000.0/60.0 # [m/s]
 	StdTicks=(1600.0/StdSpeed)*60
 	ResistanceRatio=SpeedDiff/StdSpeed
+	AccelSec=10.0
+	TargetAccel=StdSpeed/AccelSec # [m/s^2]
 
 	def initialize(seed)
 		@parameter=GirlParameter.new(seed)
@@ -127,6 +129,7 @@ class Runner
 	def adj_accel
 		a=power_ratio/weight
 		SpeedDiff*a
+		TargetAccel/60 # for debug!!
 	end
 
 	def power_ratio
