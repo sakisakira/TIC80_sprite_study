@@ -71,8 +71,10 @@ class Runner
 
 	StdSpeed=1000.0/60.0 # [m/s]
 	StdTicks=(1600.0/StdSpeed)*60
-	TargetAccel=StdSpeed/10 # [m/s^2]
-	RevAccel=StdSpeed/10 # [m/s^2]
+	StdAccelSec=10.0 # [s]
+	StdCruiseSec=120.0 # [s]
+	TargetAccel=StdSpeed/StdAccelSec # [m/s^2]
+	RevAccel=StdSpeed/StdAccelSec # [m/s^2]
 
 	def initialize(seed)
 		@parameter=GirlParameter.new(seed)
@@ -130,6 +132,11 @@ class Runner
 	
 	def target_power
 		(TargetAccel+RevAccel)*weight
+	end
+	
+	def total_power
+		(TargetAccel+RevAccel)*StdAccelSec*weight+
+			RevAccel*StdCruiseSec*weight
 	end
 
 	def power_ratio
