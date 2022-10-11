@@ -69,13 +69,10 @@ class Runner
 	attr_reader(:speed, :power)
 	attr_reader(:parameter,:status)
 
-	# (1-SpeedDiff)**300==1/2, half-life in 5sec.
-	SpeedDiff=1-2**(-1.0/300.0)
 	StdSpeed=1000.0/60.0 # [m/s]
 	StdTicks=(1600.0/StdSpeed)*60
-	ResistanceRatio=SpeedDiff/StdSpeed
-	AccelSec=10.0
-	TargetAccel=StdSpeed/AccelSec # [m/s^2]
+	TargetAccel=StdSpeed/10 # [m/s^2]
+	RevAccel=StdSpeed/10 # [m/s^2]
 
 	def initialize(seed)
 		@parameter=GirlParameter.new(seed)
@@ -119,17 +116,20 @@ class Runner
 	end
 
 	def updated_speed
-		speed+adj_accel-adj_resist
+		[0,speed+accel_speed_diff-resist_speed_diff].max
 	end
 
-	def adj_resist
-		ResistanceRatio*weight*speed
+	def resist_speed_diff
+		RevAccel/60
 	end
 
-	def adj_accel
+	def accel_speed_diff
 		a=power_ratio/weight
-		SpeedDiff*a
-		TargetAccel/60 # for debug!!
+		(TargetAccel+RevAccel)/60 # for debug!!
+	end
+	
+	def target_power
+		(TargetAccel+RevAccel)*weight
 	end
 
 	def power_ratio

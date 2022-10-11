@@ -15,7 +15,7 @@ p race
   r=race.runner(0)
   print (i/60.0).fmt
   print " d:", r.position[0].fmt, " v:", r.speed.fmt
-  print " r:", r.adj_resist.fmt, " a:", r.adj_accel.fmt
+  print " r:", r.resist_speed_diff.fmt, " a:", r.accel_speed_diff.fmt
   print " pr:", r.power_ratio.fmt, " t:", r.remaining_tic, "\n"
 end
 
