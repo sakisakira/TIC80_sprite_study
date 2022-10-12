@@ -126,19 +126,26 @@ class Runner
 	end
 
 	def accel_speed_diff
-		a=power_ratio/weight
-		(TargetAccel+RevAccel)/60 # for debug!!
+		force_par_tick/weight
 	end
 	
-	def target_power
-		(TargetAccel+RevAccel)*weight
+	def target_impact
+		if speed<StdSpeed then
+			(TargetAccel+RevAccel)*weight
+		else
+			RevAccel*weight
+		end
 	end
 	
-	def total_power
+	def total_impact
 		(TargetAccel+RevAccel)*StdAccelSec*weight+
 			RevAccel*StdCruiseSec*weight
 	end
-
+	
+	def force_par_tick
+		###################### working 2022.10.12
+	end
+	
 	def power_ratio
 		t=remaining_tic
 		return 0.0 if t<=0
