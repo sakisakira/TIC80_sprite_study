@@ -68,6 +68,7 @@ class Runner
 	attr_accessor(:position)
 	attr_reader(:speed, :power)
 	attr_reader(:parameter,:status)
+	attr_reader(:remained_impact)
 
 	StdSpeed=1000.0/60.0 # [m/s]
 	StdTicks=(1600.0/StdSpeed)*60
@@ -82,6 +83,7 @@ class Runner
 		@power=1.0
 		@speed=0.0
 		@position=[0.0,0.5]
+		@remained_impact=total_impact
 	end
 
 	def lung
@@ -111,7 +113,7 @@ class Runner
 		@group_indices=nil
 		@closest=nil
 		@predecessor=nil
-		@position[0]+=@speed/60
+		@position[0]+=@speed/60.0
 		@speed=updated_speed
 		t=remaining_tic
 		@status=@status-@status/t if t>0
@@ -122,18 +124,18 @@ class Runner
 	end
 
 	def resist_speed_diff
-		RevAccel/60
+		RevAccel/60.0
 	end
 
 	def accel_speed_diff
 		force_par_tick/weight
 	end
 	
-	def target_impact
+	def target_impact_par_tick
 		if speed<StdSpeed then
-			(TargetAccel+RevAccel)*weight
+			(TargetAccel+RevAccel)*weight/60.0
 		else
-			RevAccel*weight
+			RevAccel*weight/60.0
 		end
 	end
 	
@@ -141,9 +143,16 @@ class Runner
 		(TargetAccel+RevAccel)*StdAccelSec*weight+
 			RevAccel*StdCruiseSec*weight
 	end
-	
+
 	def force_par_tick
-		###################### working 2022.10.12
+		impact=target_impact_par_tick
+		if impact<@remained_impact then
+			@remained_impact-=impact
+		else
+			impact=@remained_impact
+			@remained_impact=0.0
+		end
+		impact*60.0
 	end
 	
 	def power_ratio

@@ -16,6 +16,7 @@ p race
   print (i/60.0).fmt
   print " d:", r.position[0].fmt, " v:", r.speed.fmt
   print " r:", r.resist_speed_diff.fmt, " a:", r.accel_speed_diff.fmt
-  print " pr:", r.power_ratio.fmt, " t:", r.remaining_tic, "\n"
+  print " ti:", r.target_impact_par_tick.fmt
+  print " ri:", r.remained_impact.fmt, "\n"
 end
 
