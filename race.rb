@@ -120,7 +120,7 @@ class Runner
 	end
 
 	def updated_speed
-		[0,speed+accel_speed_diff-resist_speed_diff].max
+		[0.0,speed+accel_speed_diff-resist_speed_diff].max
 	end
 
 	def resist_speed_diff
@@ -128,7 +128,7 @@ class Runner
 	end
 
 	def accel_speed_diff
-		force_par_tick/weight
+		force/weight/60.0
 	end
 	
 	def target_impact_par_tick
@@ -144,7 +144,7 @@ class Runner
 			RevAccel*StdCruiseSec*weight
 	end
 
-	def force_par_tick
+	def force
 		impact=target_impact_par_tick
 		if impact<@remained_impact then
 			@remained_impact-=impact
