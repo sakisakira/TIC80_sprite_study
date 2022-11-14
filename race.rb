@@ -115,6 +115,7 @@ class Runner
 		@predecessor=nil
 		@position[0]+=@speed/60.0
 		@speed=updated_speed
+		@remained_impact-=@impact
 		t=remaining_tic
 		@status=@status-@status/t if t>0
 	end
@@ -145,9 +146,8 @@ class Runner
 	end
 
 	def force
-		impact=[target_impact_par_tick,@remained_impact].min
-		@remained_impact-=impact
-		impact*60.0
+		@impact=[target_impact_par_tick,@remained_impact].min
+		@impact*60.0
 	end
 	
 	def power_ratio
