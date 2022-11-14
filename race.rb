@@ -145,13 +145,8 @@ class Runner
 	end
 
 	def force
-		impact=target_impact_par_tick
-		if impact<@remained_impact then
-			@remained_impact-=impact
-		else
-			impact=@remained_impact
-			@remained_impact=0.0
-		end
+		impact=[target_impact_par_tick,@remained_impact].min
+		@remained_impact-=impact
 		impact*60.0
 	end
 	
