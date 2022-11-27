@@ -146,8 +146,9 @@ class Runner
 	end
 
 	def force
-		@impact=[target_impact_par_tick,@remained_impact].min
-		@impact*60.0
+		target_impact=[target_impact_par_tick,@remained_impact].min
+		@impact=target_impact
+		@impact*60
 	end
 	
 	def power_ratio
