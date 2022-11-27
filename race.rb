@@ -147,6 +147,11 @@ class Runner
 
 	def force
 		target_impact=[target_impact_par_tick,@remained_impact].min
+		d_s=@status/remaining_tic
+		w=weight
+		l=lung
+		m=muscle
+		ratio=(d_s.s*w+d_s.o*l+d_s.f)/3
 		@impact=target_impact
 		@impact*60
 	end
