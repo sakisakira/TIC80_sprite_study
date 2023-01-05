@@ -65,7 +65,7 @@ class GirlStatus
 end
 
 class Runner
-	attr_accessor(:position)
+	attr_accessor(:position, :tic)
 	attr_reader(:speed, :power)
 	attr_reader(:parameter,:status)
 	attr_reader(:remained_impact)
@@ -114,22 +114,27 @@ class Runner
 		@closest=nil
 		@predecessor=nil
 		@position[0]+=@speed/60.0
-		@speed=updated_speed
+		@speed,@impact=updated_speed_and_impact
 		@remained_impact-=@impact
-		t=remaining_tic
-		@status=@status-@status/t if t>0
 	end
 
-	def updated_speed
-		[0.0,speed+accel_speed_diff-resist_speed_diff].max
+	def updated_speed_and_impact
+		accel,impact=accel_speed_diff_and_impact
+		speed=[0.0,@speed+accel-resist_speed_diff].max
+		[speed,impact]
 	end
 
 	def resist_speed_diff
 		RevAccel/60.0
 	end
 
+	def accel_speed_diff_and_impact
+		force,impact=force_and_impact
+		[force/weight/60.0,impact]
+	end
+	
 	def accel_speed_diff
-		force/weight/60.0
+		accel_speed_diff_and_impact[0]
 	end
 	
 	def target_impact_par_tick
@@ -145,15 +150,14 @@ class Runner
 			RevAccel*StdCruiseSec*weight
 	end
 
-	def force
+	def force_and_impact
 		target_impact=[target_impact_par_tick,@remained_impact].min
-		d_s=@status/remaining_tic
 		w=weight
 		l=lung
 		m=muscle
-		ratio=(d_s.s*w+d_s.o*l+d_s.f)/3
-		@impact=target_impact
-		@impact*60
+		ratio=(@status.s*w+@status.o*l+@status.f)/3
+		impact=target_impact*ratio
+		[impact*60,impact]
 	end
 	
 	def power_ratio
@@ -176,7 +180,7 @@ class Runner
 	end
 
 	def remaining_tic
-		[0,((remaining_distance/target_speed)*60).to_i].max
+		[0,((remaining_distance/StdSpeed)*60).ceil].max
 	end
 
 	def target_speed

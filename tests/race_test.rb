@@ -1,5 +1,6 @@
 # -*- tab-width : 4; indent-tabs-mode : t  -*-
 
+require 'debug'
 require '../race.rb'
 
 class Float
@@ -14,8 +15,9 @@ p race
   race.simulate
   r=race.runner(0)
   print (i/60.0).fmt
+  print " t:", r.tic
   print " d:", r.position[0].fmt, " v:", r.speed.fmt
-  print " r:", r.resist_speed_diff.fmt, " a:", r.accel_speed_diff.fmt
+  print " a:", r.accel_speed_diff.fmt
   print " ti:", r.target_impact_par_tick.fmt
   print " ri:", r.remained_impact.fmt, "\n"
 end
